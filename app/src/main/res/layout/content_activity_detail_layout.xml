@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/red_primary">
+
+                <TextView
+                    android:id="@+id/detail_restaurant_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:maxLines="2"
+                    android:paddingTop="20dp"
+                    android:textColor="@color/white"
+                    android:textSize="24sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Le Zinc" />
+
+                <TextView
+                    android:id="@+id/detail_address"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:maxLines="2"
+                    android:paddingTop="4dp"
+                    android:paddingBottom="20dp"
+                    android:textColor="@color/white"
+                    android:textSize="16sp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@+id/detail_restaurant_name"
+                    tools:ignore="TextContrastCheck"
+                    tools:text="12 rue du Faubourg Poissonnière" />
+
+                <RatingBar
+                    android:id="@+id/detail_rating"
+                    style="@style/Widget.AppCompat.RatingBar.Small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="5dp"
+                    android:numStars="3"
+                    android:paddingTop="26dp"
+                    app:layout_constraintStart_toEndOf="@id/detail_restaurant_name"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/detail_call_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="20dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@android:color/transparent"
+                    android:minWidth="48dp"
+                    android:minHeight="48dp"
+                    android:text="@string/detail_call"
+                    android:textColor="@color/red_primary"
+                    app:icon="@drawable/ic_baseline_call_24"
+                    app:iconGravity="top"
+                    app:iconTint="@color/red_primary"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/detail_like_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="70dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@android:color/transparent"
+                    android:minWidth="48dp"
+                    android:minHeight="48dp"
+                    android:text="@string/detail_like"
+                    android:textColor="@color/red_primary"
+                    app:icon="@drawable/ic_baseline_star_24"
+                    app:iconGravity="top"
+                    app:iconTint="@color/red_primary"
+                    app:layout_constraintStart_toEndOf="@id/detail_call_btn"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/detail_website_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="70dp"
+                    android:layout_marginTop="8dp"
+                    android:background="@android:color/transparent"
+                    android:minWidth="48dp"
+                    android:minHeight="48dp"
+                    android:text="@string/detail_website"
+                    android:textColor="@color/red_primary"
+                    app:icon="@drawable/ic_baseline_public_24"
+                    app:iconGravity="top"
+                    app:iconTint="@color/red_primary"
+                    app:layout_constraintStart_toEndOf="@id/detail_like_btn"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <View
+                android:id="@+id/detail_separator"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="16dp"
+                android:background="@color/separator" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/detail_workmate_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                tools:listitem="@layout/workmate_item" />
+
+            <TextView
+                android:id="@+id/no_workmate_tv"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="32dp"
+                android:drawablePadding="16dp"
+                android:text="@string/no_joining_workmate"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:drawableBottomCompat="@drawable/ic_baseline_person_off_24"
+                app:tint="@color/black"
+                app:drawableTint="@color/black" />
+
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">Go4Lunch</string>
+
+    <string name="lunch_spot_fab">Fab to choose a lunch spot</string>
+
+    <string name="bnm_map_view">Map View</string>
+    <string name="bnm_list_view">List View</string>
+    <string name="bnm_workmates">Workmates</string>
+
+    <string name="nav_hungry">I\'m Hungry!</string>
+    <string name="nav_workmates">Available Workmates</string>
+
+    <string name="label_detail">Restaurant Details</string>
+
+    <string name="nd_your_lunch">YOUR LUNCH</string>
+    <string name="nd_settings">SETTINGS</string>
+    <string name="nd_logout">LOGOUT</string>
+
+    <string name="detail_call">CALL</string>
+    <string name="detail_like">LIKE</string>
+    <string name="detail_website">WEBSITE</string>
+
+    <string name="no_restaurant">No restaurant found in the surrounding area</string>
+    <string name="no_workmate">No available workmate found</string>
+    <string name="no_joining_workmate">No workmate is eating in this restaurant</string>
+</resources>

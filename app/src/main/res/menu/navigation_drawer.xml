@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group
+        android:id="@+id/menu_options"
+        android:checkableBehavior="single">
+        <item
+            android:id="@+id/nd_your_lunch"
+            android:checked="true"
+            android:icon="@drawable/ic_baseline_local_dining_24"
+            android:title="@string/nd_your_lunch" />
+        <item
+            android:id="@+id/nd_settings"
+            android:checked="true"
+            android:icon="@drawable/ic_baseline_settings_24"
+            android:title="@string/nd_settings" />
+        <item
+            android:id="@+id/nd_logout"
+            android:checked="true"
+            android:icon="@drawable/ic_baseline_power_settings_new_24"
+            android:title="@string/nd_logout" />
+    </group>
+
+</menu>
