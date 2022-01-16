@@ -1,4 +1,4 @@
-package com.gabriel.aranias.go4lunch_v2.list;
+package com.gabriel.aranias.go4lunch_v2.ui.list;
 
 import android.os.Bundle;
 

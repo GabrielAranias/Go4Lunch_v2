@@ -3,6 +3,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="com.gabriel.aranias.go4lunch_v2">
 
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:name="androidx.multidex.MultiDexApplication"
         android:allowBackup="true"
@@ -13,18 +15,18 @@
         android:theme="@style/Theme.Go4Lunch_v2"
         tools:ignore="AllowBackup">
         <activity
-            android:name=".SettingActivity"
+            android:name=".ui.SettingActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".LoginActivity"
+            android:name=".ui.LoginActivity"
             android:exported="false" />
         <activity
-            android:name=".detail.DetailActivity"
+            android:name=".ui.detail.DetailActivity"
             android:exported="false"
-            android:parentActivityName=".MainActivity" />
+            android:parentActivityName=".ui.MainActivity" />
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

@@ -1,4 +1,4 @@
-package com.gabriel.aranias.go4lunch_v2.workmate;
+package com.gabriel.aranias.go4lunch_v2.ui.workmate;
 
 import android.os.Bundle;
 
