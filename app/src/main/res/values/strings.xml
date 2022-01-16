@@ -30,8 +30,13 @@
     <string name="no_workmate">No available workmate found</string>
     <string name="no_joining_workmate">No workmate is eating in this restaurant</string>
 
-    <string name="delete_account">Delete your account</string>
-    <string name="popup_delete_confirmation">Do you really want to delete your account?</string>
     <string name="yes">YES</string>
     <string name="no">NO</string>
+    <string name="ok">OK</string>
+
+    <string name="update_name">Update your username</string>
+    <string name="update_hint">New username</string>
+    <string name="update_done">Your username has been updated</string>
+    <string name="delete_account">Delete your account</string>
+    <string name="popup_delete_confirmation">Do you really want to delete your account?</string>
 </resources>

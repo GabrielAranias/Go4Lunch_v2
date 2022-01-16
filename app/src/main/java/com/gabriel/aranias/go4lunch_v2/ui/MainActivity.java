@@ -117,13 +117,16 @@ public class MainActivity extends AppCompatActivity {
 
     // Display user info in drawer header
     private void getUserData() {
-        FirebaseUser user = userHelper.getCurrentUser();
-        if (user.getPhotoUrl() != null) {
-            setProfilePicture(user.getPhotoUrl());
-        } else {
-            setDefaultProfilePicture();
+        if (userHelper.isCurrentUserLoggedIn()) {
+            FirebaseUser user = userHelper.getCurrentUser();
+            if (user.getPhotoUrl() != null) {
+                setProfilePicture(user.getPhotoUrl());
+            } else {
+                setDefaultProfilePicture();
+            }
+            setUserTextInfo(user);
+            updateUserData();
         }
-        setUserTextInfo(user);
     }
 
     private void setProfilePicture(Uri photoUrl) {
@@ -148,6 +151,15 @@ public class MainActivity extends AppCompatActivity {
 
         headerBinding.headerUserName.setText(username);
         headerBinding.headerUserEmail.setText(email);
+    }
+
+    // Set data w/ user info
+    private void updateUserData() {
+        userHelper.getUserData().addOnSuccessListener(user -> {
+           String username = TextUtils.isEmpty(user.getUsername()) ?
+           getString(R.string.no_username) : user.getUsername();
+           headerBinding.headerUserName.setText(username);
+        });
     }
 
     private void getLunchDetails() {

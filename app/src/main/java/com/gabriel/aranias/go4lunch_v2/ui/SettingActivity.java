@@ -3,6 +3,8 @@ package com.gabriel.aranias.go4lunch_v2.ui;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -34,6 +36,17 @@ public class SettingActivity extends AppCompatActivity {
     }
 
     private void setUpListeners() {
+        // Update btn
+        binding.settingUpdateBtn.setOnClickListener(view ->
+                binding.settingUpdateLayout.setVisibility(View.VISIBLE));
+        binding.settingOkBtn.setOnClickListener(view ->
+                userHelper.updateUsername(Objects.requireNonNull(
+                        binding.settingUpdateEditText.getText()).toString())
+                        .addOnSuccessListener(aVoid -> {
+                            Toast.makeText(this, R.string.update_done, Toast.LENGTH_SHORT).show();
+                            binding.settingUpdateLayout.setVisibility(View.GONE);
+                        }));
+
         // Delete btn
         binding.settingDeleteBtn.setOnClickListener(view -> new AlertDialog.Builder(this)
                 .setMessage(R.string.popup_delete_confirmation)
