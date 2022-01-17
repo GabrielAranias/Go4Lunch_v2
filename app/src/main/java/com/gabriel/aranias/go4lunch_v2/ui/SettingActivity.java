@@ -50,12 +50,12 @@ public class SettingActivity extends AppCompatActivity {
         // Delete btn
         binding.settingDeleteBtn.setOnClickListener(view -> new AlertDialog.Builder(this)
                 .setMessage(R.string.delete_account_popup)
-                .setPositiveButton(R.string.yes, (dialogInterface, i) ->
+                .setPositiveButton(android.R.string.ok, (dialogInterface, i) ->
                         userHelper.deleteUser(SettingActivity.this)
                                 .addOnCompleteListener(task -> startLoginActivity()
                                 )
                 )
-                .setNegativeButton(R.string.no, null)
+                .setNegativeButton(android.R.string.cancel, null)
                 .show());
     }
 

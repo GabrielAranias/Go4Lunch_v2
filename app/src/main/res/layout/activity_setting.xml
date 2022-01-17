@@ -65,7 +65,7 @@
                 android:layout_marginStart="20dp"
                 android:backgroundTint="@color/orange_300"
                 android:padding="10dp"
-                android:text="@string/ok"
+                android:text="@android:string/ok"
                 android:textColor="@color/black" />
 
         </LinearLayout>

@@ -30,14 +30,14 @@
     <string name="no_workmate">No available workmate found</string>
     <string name="no_joining_workmate">No workmate is eating in this restaurant</string>
 
-    <string name="yes">YES</string>
-    <string name="no">NO</string>
-    <string name="ok">OK</string>
-
     <string name="update_name">Update your username</string>
     <string name="update_hint">New username</string>
     <string name="update_done">Your username has been updated</string>
     <string name="new_name_needed">Please specify your new username</string>
     <string name="delete_account">Delete your account</string>
     <string name="delete_account_popup">Do you really want to delete your account?</string>
+
+    <string name="location_permission_required">Location permission is required for this app</string>
+    <string name="location_permission_rationale">Access to the location service is required for this app, which displays restaurants in your surrounding area</string>
+    <string name="location_permission_denied">This app requires location permission to work efficiently. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings </string>
 </resources>
