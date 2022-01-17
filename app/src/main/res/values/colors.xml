@@ -12,5 +12,6 @@
     <color name="green">#69f0ae</color>
     <color name="green_light">#b9f6ca</color>
     <color name="yellow">#ffeb3b</color>
+    <color name="orange_300">#ffbb93</color>
     <color name="separator">#d3d3d3</color>
 </resources>

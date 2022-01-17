@@ -37,6 +37,7 @@
     <string name="update_name">Update your username</string>
     <string name="update_hint">New username</string>
     <string name="update_done">Your username has been updated</string>
+    <string name="new_name_needed">Please specify your new username</string>
     <string name="delete_account">Delete your account</string>
-    <string name="popup_delete_confirmation">Do you really want to delete your account?</string>
+    <string name="delete_account_popup">Do you really want to delete your account?</string>
 </resources>

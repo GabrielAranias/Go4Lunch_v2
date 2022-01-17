@@ -125,7 +125,6 @@ public class MainActivity extends AppCompatActivity {
                 setDefaultProfilePicture();
             }
             setUserTextInfo(user);
-            updateUserData();
         }
     }
 
@@ -151,15 +150,6 @@ public class MainActivity extends AppCompatActivity {
 
         headerBinding.headerUserName.setText(username);
         headerBinding.headerUserEmail.setText(email);
-    }
-
-    // Set data w/ user info
-    private void updateUserData() {
-        userHelper.getUserData().addOnSuccessListener(user -> {
-           String username = TextUtils.isEmpty(user.getUsername()) ?
-           getString(R.string.no_username) : user.getUsername();
-           headerBinding.headerUserName.setText(username);
-        });
     }
 
     private void getLunchDetails() {

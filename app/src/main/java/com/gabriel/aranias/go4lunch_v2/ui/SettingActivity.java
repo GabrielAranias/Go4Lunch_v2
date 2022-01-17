@@ -3,6 +3,7 @@ package com.gabriel.aranias.go4lunch_v2.ui;
 import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Toast;
 
@@ -37,19 +38,18 @@ public class SettingActivity extends AppCompatActivity {
 
     private void setUpListeners() {
         // Update btn
-        binding.settingUpdateBtn.setOnClickListener(view ->
-                binding.settingUpdateLayout.setVisibility(View.VISIBLE));
-        binding.settingOkBtn.setOnClickListener(view ->
-                userHelper.updateUsername(Objects.requireNonNull(
-                        binding.settingUpdateEditText.getText()).toString())
-                        .addOnSuccessListener(aVoid -> {
-                            Toast.makeText(this, R.string.update_done, Toast.LENGTH_SHORT).show();
-                            binding.settingUpdateLayout.setVisibility(View.GONE);
-                        }));
+        binding.settingUpdateBtn.setOnClickListener(v -> {
+            if (binding.settingUpdateLayout.getVisibility() == View.GONE) {
+                binding.settingUpdateLayout.setVisibility(View.VISIBLE);
+            } else {
+                binding.settingUpdateLayout.setVisibility(View.GONE);
+            }
+        });
+        binding.settingOkBtn.setOnClickListener(view -> checkError());
 
         // Delete btn
         binding.settingDeleteBtn.setOnClickListener(view -> new AlertDialog.Builder(this)
-                .setMessage(R.string.popup_delete_confirmation)
+                .setMessage(R.string.delete_account_popup)
                 .setPositiveButton(R.string.yes, (dialogInterface, i) ->
                         userHelper.deleteUser(SettingActivity.this)
                                 .addOnCompleteListener(task -> startLoginActivity()
@@ -57,6 +57,21 @@ public class SettingActivity extends AppCompatActivity {
                 )
                 .setNegativeButton(R.string.no, null)
                 .show());
+    }
+
+    private void checkError() {
+        if (TextUtils.isEmpty(Objects.requireNonNull(binding.settingUpdateEditLayout.getEditText())
+                .getText().toString())) {
+            binding.settingUpdateEditText.setError(getString(R.string.new_name_needed));
+        } else {
+            binding.settingUpdateEditText.setError(null);
+            userHelper.updateUsername(Objects.requireNonNull(
+                    binding.settingUpdateEditText.getText()).toString())
+                    .addOnSuccessListener(aVoid -> {
+                        Toast.makeText(this, R.string.update_done, Toast.LENGTH_SHORT).show();
+                        binding.settingUpdateLayout.setVisibility(View.GONE);
+                    });
+        }
     }
 
     private void startLoginActivity() {
