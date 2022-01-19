@@ -11,7 +11,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivitySettingBinding;
-import com.gabriel.aranias.go4lunch_v2.service.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 
 import java.util.Objects;
 

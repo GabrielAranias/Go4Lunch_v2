@@ -1,4 +1,4 @@
-package com.gabriel.aranias.go4lunch_v2.service;
+package com.gabriel.aranias.go4lunch_v2.service.user;
 
 import static com.gabriel.aranias.go4lunch_v2.utils.Constants.USERNAME_FIELD;
 import static com.gabriel.aranias.go4lunch_v2.utils.Constants.USER_COLLECTION;

@@ -1,10 +1,14 @@
 package com.gabriel.aranias.go4lunch_v2.ui.map;
 
+import static com.gabriel.aranias.go4lunch_v2.utils.Constants.API_KEY;
+import static com.gabriel.aranias.go4lunch_v2.utils.Constants.BASE_URL;
 import static com.gabriel.aranias.go4lunch_v2.utils.Constants.permissionDenied;
+import static com.gabriel.aranias.go4lunch_v2.utils.Constants.radius;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.Drawable;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
@@ -16,11 +20,19 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentMapBinding;
+import com.gabriel.aranias.go4lunch_v2.model.Place;
+import com.gabriel.aranias.go4lunch_v2.model.map.GooglePlaceModel;
+import com.gabriel.aranias.go4lunch_v2.model.map.GoogleResponseModel;
+import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitAPI;
+import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitClient;
+import com.gabriel.aranias.go4lunch_v2.utils.LoadingDialog;
+import com.gabriel.aranias.go4lunch_v2.utils.PlaceUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -31,15 +43,25 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PointOfInterest;
+import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.gson.Gson;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
+public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleMap.OnPoiClickListener {
 
     private FragmentMapBinding binding;
     private GoogleMap map;
@@ -49,6 +71,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Location currentLocation;
     private FirebaseAuth firebaseAuth;
     private Marker currentMarker;
+    private LoadingDialog loadingDialog;
+    private RetrofitAPI retrofitAPI;
+    private List<GooglePlaceModel> googlePlaceModelList;
+    private Place selectedPlace;
 
     public MapFragment() {
     }
@@ -62,10 +88,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         binding = FragmentMapBinding.inflate(inflater, container, false);
+
         firebaseAuth = FirebaseAuth.getInstance();
-        binding.locationFab.setOnClickListener(currentLocation -> getCurrentLocation());
+        loadingDialog = new LoadingDialog(requireActivity());
+        retrofitAPI = RetrofitClient.getRetrofitClient().create(RetrofitAPI.class);
+        googlePlaceModelList = new ArrayList<>();
+
+        binding.mapLocationFab.setOnClickListener(currentLocation -> getCurrentLocation());
+
+        setChipListener();
 
         return binding.getRoot();
+    }
+
+    private void setChipListener() {
+        binding.mapPlaceGroup.setOnCheckedChangeListener((group, checkedId) -> {
+
+            if (checkedId != -1) {
+                Place place = PlaceUtils.placeTypes.get(checkedId - 1);
+                binding.mapPlaceType.setText(place.getName());
+                selectedPlace = place;
+                getPlaces(place.getPlaceType());
+            }
+        });
     }
 
     @Override
@@ -76,29 +121,44 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         Objects.requireNonNull(mapFragment).getMapAsync(this);
+
+        initChipGroup();
+    }
+
+    private void initChipGroup() {
+        for (Place placeModel : PlaceUtils.placeTypes) {
+            Chip chip = new Chip(requireContext());
+            chip.setText(placeModel.getName());
+            chip.setId(placeModel.getId());
+            chip.setPadding(8, 8, 8, 8);
+            chip.setTextColor(getResources().getColor(R.color.white));
+            chip.setChipBackgroundColor(ContextCompat.getColorStateList(requireContext(), R.color.red_light));
+            chip.setChipIcon(ResourcesCompat.getDrawable(getResources(), placeModel.getDrawableId(), null));
+            chip.setCheckable(true);
+            chip.setCheckedIconVisible(false);
+
+            binding.mapPlaceGroup.addView(chip);
+        }
     }
 
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
 
-        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
-            permissionDenied = false;
+        if (!permissionDenied) {
             setUpMap();
         }
     }
 
     @SuppressLint("MissingPermission")
     private void setUpMap() {
-        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            permissionDenied = true;
+        if (permissionDenied) {
             return;
         }
         map.setMyLocationEnabled(true);
         map.getUiSettings().setMyLocationButtonEnabled(false);
         map.getUiSettings().setTiltGesturesEnabled(true);
+        map.setOnPoiClickListener(this);
 
         setUpLocationUpdate();
     }
@@ -126,9 +186,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private void startLocationUpdate() {
-        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            permissionDenied = true;
+        if (permissionDenied) {
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
@@ -142,9 +200,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
-        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
-            permissionDenied = true;
+        if (permissionDenied) {
             return;
         }
         fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
@@ -176,6 +232,78 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         Log.d("TAG", "stopLocationUpdate: success");
     }
 
+    private void getPlaces(String placeName) {
+        if (!permissionDenied) {
+            loadingDialog.startLoading();
+            String url = BASE_URL + "nearbysearch/json?location="
+                    + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
+                    + "&radius=" + radius + "&type=" + placeName + "&key=" + API_KEY;
+
+            if (currentLocation != null) {
+                retrofitAPI.getNearByPlaces(url).enqueue(new Callback<GoogleResponseModel>() {
+                    @Override
+                    public void onResponse(@NonNull Call<GoogleResponseModel> call,
+                                           @NonNull Response<GoogleResponseModel> response) {
+                        Gson gson = new Gson();
+                        String res = gson.toJson(response.body());
+                        Log.d("TAG", "onResponse: " + res);
+                        if (response.errorBody() == null) {
+                            if (response.body() != null) {
+                                if (response.body().getGooglePlaceModelList() != null &&
+                                        response.body().getGooglePlaceModelList().size() > 0) {
+                                    googlePlaceModelList.clear();
+                                    map.clear();
+                                    for (int i = 0; i < response.body().getGooglePlaceModelList().size(); i++) {
+                                        googlePlaceModelList.add(response.body().getGooglePlaceModelList().get(i));
+                                        addMarker(response.body().getGooglePlaceModelList().get(i), i);
+                                    }
+                                } else {
+                                    map.clear();
+                                    googlePlaceModelList.clear();
+                                    radius += 1000;
+                                    getPlaces(placeName);
+                                }
+                            }
+                        } else {
+                            Log.d("TAG", "onResponse: " + response.errorBody());
+                            Toast.makeText(requireContext(), "Error: " + response.errorBody(),
+                                    Toast.LENGTH_SHORT).show();
+                        }
+                        loadingDialog.stopLoading();
+                    }
+
+                    @Override
+                    public void onFailure(@NonNull Call<GoogleResponseModel> call, @NonNull Throwable t) {
+                        Log.d("TAG", "onFailure: " + t);
+                        loadingDialog.stopLoading();
+                    }
+                });
+            }
+        }
+    }
+
+    private void addMarker(GooglePlaceModel googlePlaceModel, int position) {
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(new LatLng(googlePlaceModel.getGeometry().getLocation().getLat(),
+                        googlePlaceModel.getGeometry().getLocation().getLng()))
+                .title(googlePlaceModel.getName())
+                .snippet(googlePlaceModel.getVicinity());
+        markerOptions.icon(getCustomIcon());
+        Objects.requireNonNull(map.addMarker(markerOptions)).setTag(position);
+    }
+
+    private BitmapDescriptor getCustomIcon() {
+        Drawable background = ContextCompat.getDrawable(requireContext(), R.drawable.marker_red);
+        Objects.requireNonNull(background).setBounds(0, 0, background.getIntrinsicWidth(),
+                background.getIntrinsicHeight());
+        Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(),
+                background.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(bitmap);
+        background.draw(canvas);
+        return BitmapDescriptorFactory.fromBitmap(bitmap);
+    }
+
+
     @Override
     public void onPause() {
         super.onPause();
@@ -193,5 +321,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 currentMarker.remove();
             }
         }
+    }
+
+    @Override
+    public void onPoiClick(@NonNull PointOfInterest pointOfInterest) {
     }
 }

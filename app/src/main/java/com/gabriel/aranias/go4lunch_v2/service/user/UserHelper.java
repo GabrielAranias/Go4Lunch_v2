@@ -1,4 +1,4 @@
-package com.gabriel.aranias.go4lunch_v2.service;
+package com.gabriel.aranias.go4lunch_v2.service.user;
 
 import android.content.Context;
 

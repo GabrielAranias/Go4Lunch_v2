@@ -22,7 +22,7 @@ import com.bumptech.glide.request.RequestOptions;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityMainBinding;
 import com.gabriel.aranias.go4lunch_v2.databinding.HeaderNavigationDrawerBinding;
-import com.gabriel.aranias.go4lunch_v2.service.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.ui.list.ListFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.map.MapFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.workmate.WorkmateFragment;

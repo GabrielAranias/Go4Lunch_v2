@@ -12,7 +12,7 @@ import com.firebase.ui.auth.IdpResponse;
 import com.firebase.ui.auth.data.model.FirebaseAuthUIAuthenticationResult;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityLoginBinding;
-import com.gabriel.aranias.go4lunch_v2.service.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 
 import java.util.Arrays;
 import java.util.List;
