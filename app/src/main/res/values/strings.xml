@@ -5,6 +5,7 @@
     <string name="fb_login_protocol_scheme" translatable="false">fb6958376004235357</string>
 
     <string name="lunch_spot_fab" translatable="false">Fab to choose a lunch spot</string>
+    <string name="location_fab" translatable="false">Fab to set map camera on user location</string>
 
     <string name="bnm_map_view">Map View</string>
     <string name="bnm_list_view">List View</string>
@@ -40,4 +41,6 @@
     <string name="location_permission_required">Location permission is required for this app</string>
     <string name="location_permission_rationale">Access to the location service is required for this app, which displays restaurants in your surrounding area</string>
     <string name="location_permission_denied">This app requires location permission to work efficiently. Please try again and grant access to use the location.\nIf the permission has been permanently denied, it can be enabled from the System Settings </string>
+    <string name="location_update">Location updated</string>
+
 </resources>

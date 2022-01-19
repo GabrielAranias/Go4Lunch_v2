@@ -1,38 +1,54 @@
 package com.gabriel.aranias.go4lunch_v2.ui.map;
 
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.DEFAULT_ZOOM;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.KEY_CAMERA_POSITION;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.KEY_LOCATION;
+import static com.gabriel.aranias.go4lunch_v2.utils.Constants.permissionDenied;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.gabriel.aranias.go4lunch_v2.R;
+import com.gabriel.aranias.go4lunch_v2.databinding.FragmentMapBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.util.Objects;
 
-public class MapFragment extends Fragment implements GoogleMap.OnMyLocationButtonClickListener,
-        GoogleMap.OnMyLocationClickListener, OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback {
 
+    private FragmentMapBinding binding;
     private GoogleMap map;
+    private LocationRequest locationRequest;
+    private LocationCallback locationCallback;
     private FusedLocationProviderClient fusedLocationProviderClient;
-    private Location lastKnownLocation;
+    private Location currentLocation;
+    private FirebaseAuth firebaseAuth;
+    private Marker currentMarker;
 
     public MapFragment() {
     }
@@ -45,23 +61,16 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationButto
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        binding = FragmentMapBinding.inflate(inflater, container, false);
+        firebaseAuth = FirebaseAuth.getInstance();
+        binding.locationFab.setOnClickListener(currentLocation -> getCurrentLocation());
 
-        // Retrieve location x camera position from saved instance state
-        if (savedInstanceState != null) {
-            lastKnownLocation = savedInstanceState.getParcelable(KEY_LOCATION);
-            savedInstanceState.getParcelable(KEY_CAMERA_POSITION);
-        }
-
-        // Retrieve view that renders map
-        return inflater.inflate(R.layout.fragment_map, container, false);
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Construct FusedLocationProviderClient
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireActivity());
 
         // Build map
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
@@ -69,53 +78,120 @@ public class MapFragment extends Fragment implements GoogleMap.OnMyLocationButto
         Objects.requireNonNull(mapFragment).getMapAsync(this);
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
-        googleMap.setMyLocationEnabled(true);
-        googleMap.setOnMyLocationButtonClickListener(this);
-        googleMap.setOnMyLocationClickListener(this);
 
-        // Get current location of device x set position of map
-        getDeviceLocation();
+        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            permissionDenied = false;
+            setUpMap();
+        }
     }
 
-    // Get best x most recent location of device
-    private void getDeviceLocation() {
-        @SuppressLint("MissingPermission") Task<Location> locationResult =
-                fusedLocationProviderClient.getLastLocation();
-        locationResult.addOnCompleteListener(requireActivity(), task -> {
-            if (task.isSuccessful()) {
-                // Set map's camera position to current location of device
-                lastKnownLocation = task.getResult();
-                if (lastKnownLocation != null) {
-                    map.moveCamera(CameraUpdateFactory.newLatLngZoom(
-                            new LatLng(lastKnownLocation.getLatitude(),
-                                    lastKnownLocation.getLongitude()), DEFAULT_ZOOM));
+    @SuppressLint("MissingPermission")
+    private void setUpMap() {
+        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionDenied = true;
+            return;
+        }
+        map.setMyLocationEnabled(true);
+        map.getUiSettings().setMyLocationButtonEnabled(false);
+        map.getUiSettings().setTiltGesturesEnabled(true);
+
+        setUpLocationUpdate();
+    }
+
+    private void setUpLocationUpdate() {
+        locationRequest = LocationRequest.create();
+        locationRequest.setInterval(10000);
+        locationRequest.setFastestInterval(5000);
+        locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
+        locationCallback = new LocationCallback() {
+            @Override
+            public void onLocationResult(@NonNull LocationResult locationResult) {
+                for (Location location : locationResult.getLocations()) {
+                    Log.d("TAG", "onLocationResult: " + location.getLatitude() + ","
+                            + location.getLongitude());
                 }
+                super.onLocationResult(locationResult);
             }
+        };
+        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(requireContext());
+
+        startLocationUpdate();
+    }
+
+    @SuppressLint("MissingPermission")
+    private void startLocationUpdate() {
+        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionDenied = true;
+            return;
+        }
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
+                Looper.getMainLooper()).addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Toast.makeText(requireContext(), R.string.location_update, Toast.LENGTH_SHORT).show();
+            }
+        });
+        getCurrentLocation();
+    }
+
+    @SuppressLint("MissingPermission")
+    private void getCurrentLocation() {
+        if (ActivityCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            permissionDenied = true;
+            return;
+        }
+        fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
+            currentLocation = location;
+            moveCameraToLocation(location);
         });
     }
 
-    @Override
-    public boolean onMyLocationButtonClick() {
-        // Return false so that event isn't consumed x default behavior still occurs
-        // (camera animates to user's current position)
-        return false;
-    }
+    private void moveCameraToLocation(Location location) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(
+                location.getLatitude(), location.getLongitude()), 17);
 
-    @Override
-    public void onMyLocationClick(@NonNull Location location) {
-    }
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(new LatLng(location.getLatitude(), location.getLongitude()))
+                .title("Current Location")
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                .snippet(Objects.requireNonNull(firebaseAuth.getCurrentUser()).getDisplayName());
 
-    // Save state of map when activity is paused
-    @Override
-    public void onSaveInstanceState(@NonNull Bundle outState) {
-        if (map != null) {
-            outState.putParcelable(KEY_CAMERA_POSITION, map.getCameraPosition());
-            outState.putParcelable(KEY_LOCATION, lastKnownLocation);
+        if (currentMarker != null) {
+            currentMarker.remove();
         }
-        super.onSaveInstanceState(outState);
+        currentMarker = map.addMarker(markerOptions);
+        Objects.requireNonNull(currentMarker).setTag(703);
+        map.animateCamera(cameraUpdate);
+    }
+
+    private void stopLocationUpdate() {
+        fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        Log.d("TAG", "stopLocationUpdate: success");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (fusedLocationProviderClient != null) {
+            stopLocationUpdate();
+        }
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (fusedLocationProviderClient != null) {
+            startLocationUpdate();
+            if (currentMarker != null) {
+                currentMarker.remove();
+            }
+        }
     }
 }

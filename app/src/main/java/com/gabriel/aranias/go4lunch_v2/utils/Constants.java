@@ -11,4 +11,6 @@ public class Constants {
     public static final String KEY_CAMERA_POSITION = "camera_position";
     public static final String KEY_LOCATION = "location";
     public static final int DEFAULT_ZOOM = 15;
+
+    public static boolean permissionDenied = false;
 }

@@ -1,6 +1,7 @@
 package com.gabriel.aranias.go4lunch_v2.ui;
 
 import static com.gabriel.aranias.go4lunch_v2.utils.Constants.LOCATION_PERMISSION_REQUEST_CODE;
+import static com.gabriel.aranias.go4lunch_v2.utils.Constants.permissionDenied;
 
 import android.Manifest;
 import android.content.Intent;
@@ -33,7 +34,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private ActivityMainBinding binding;
     private HeaderNavigationDrawerBinding headerBinding;
     private final UserHelper userHelper = UserHelper.getInstance();
-    private boolean permissionDenied = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
