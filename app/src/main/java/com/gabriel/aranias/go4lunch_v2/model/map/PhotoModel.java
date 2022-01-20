@@ -1,5 +1,7 @@
 package com.gabriel.aranias.go4lunch_v2.model.map;
 
+import static com.gabriel.aranias.go4lunch_v2.utils.Constants.API_KEY;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -53,5 +55,11 @@ public class PhotoModel {
 
     public void setWidth(Integer width) {
         this.width = width;
+    }
+
+    public String getPhotoUrl() {
+        String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=";
+        String key = "&key=" + API_KEY;
+        return url + getPhotoReference() + key;
     }
 }

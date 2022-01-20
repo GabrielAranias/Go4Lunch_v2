@@ -29,7 +29,7 @@ import com.gabriel.aranias.go4lunch_v2.databinding.FragmentMapBinding;
 import com.gabriel.aranias.go4lunch_v2.model.Place;
 import com.gabriel.aranias.go4lunch_v2.model.map.GooglePlaceModel;
 import com.gabriel.aranias.go4lunch_v2.model.map.GoogleResponseModel;
-import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitAPI;
+import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitApi;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitClient;
 import com.gabriel.aranias.go4lunch_v2.utils.LoadingDialog;
 import com.gabriel.aranias.go4lunch_v2.utils.PlaceUtils;
@@ -72,7 +72,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
     private FirebaseAuth firebaseAuth;
     private Marker currentMarker;
     private LoadingDialog loadingDialog;
-    private RetrofitAPI retrofitAPI;
+    private RetrofitApi retrofitApi;
     private List<GooglePlaceModel> googlePlaceModelList;
     private Place selectedPlace;
 
@@ -91,7 +91,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
 
         firebaseAuth = FirebaseAuth.getInstance();
         loadingDialog = new LoadingDialog(requireActivity());
-        retrofitAPI = RetrofitClient.getRetrofitClient().create(RetrofitAPI.class);
+        retrofitApi = RetrofitClient.getRetrofitApi();
         googlePlaceModelList = new ArrayList<>();
 
         binding.mapLocationFab.setOnClickListener(currentLocation -> getCurrentLocation());
@@ -240,7 +240,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                     + "&radius=" + radius + "&type=" + placeName + "&key=" + API_KEY;
 
             if (currentLocation != null) {
-                retrofitAPI.getNearByPlaces(url).enqueue(new Callback<GoogleResponseModel>() {
+                retrofitApi.getNearByPlaces(url).enqueue(new Callback<GoogleResponseModel>() {
                     @Override
                     public void onResponse(@NonNull Call<GoogleResponseModel> call,
                                            @NonNull Response<GoogleResponseModel> response) {
@@ -303,7 +303,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
-
     @Override
     public void onPause() {
         super.onPause();
@@ -321,6 +320,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, GoogleM
                 currentMarker.remove();
             }
         }
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
     }
 
     @Override

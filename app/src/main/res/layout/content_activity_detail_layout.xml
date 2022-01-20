@@ -51,15 +51,14 @@
                     tools:ignore="TextContrastCheck"
                     tools:text="12 rue du Faubourg Poissonnière" />
 
-                <RatingBar
+                <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/detail_rating"
                     style="@style/Widget.AppCompat.RatingBar.Small"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginTop="5dp"
-                    android:numStars="3"
-                    android:paddingTop="26dp"
+                    android:layout_marginStart="14dp"
+                    android:layout_marginTop="28dp"
+                    tools:src="@drawable/star_one"
                     app:layout_constraintStart_toEndOf="@id/detail_restaurant_name"
                     app:layout_constraintTop_toTopOf="parent" />
 

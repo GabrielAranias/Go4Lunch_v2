@@ -16,4 +16,6 @@ public class Constants {
     public static boolean permissionDenied = false;
 
     public static int radius = 5000;
+
+    public static final String EXTRA_RESTAURANT = "restaurant";
 }
