@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.RestaurantItemBinding;
-import com.gabriel.aranias.go4lunch_v2.model.map.GooglePlaceModel;
+import com.gabriel.aranias.go4lunch_v2.model.map_list.GooglePlaceModel;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.squareup.picasso.Picasso;
 
@@ -76,7 +76,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             // Distance
             getDistance(restaurant);
             // Opening hours
-            getOpeningStatus();
+            getOpeningStatus(restaurant);
             // #workmates
             getWorkmateNumber();
         }
@@ -88,12 +88,13 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
                         .load(restaurant.getPhotos().get(0).getPhotoUrl())
                         .centerCrop()
                         .resize(50, 50)
-                        .error(R.drawable.ic_no_image_available)
+                        .error(R.drawable.image_not_available)
                         .into(binding.itemRestaurantPhoto);
             } else {
                 Picasso.get()
-                        .load(R.drawable.ic_no_image_available)
+                        .load(R.drawable.image_not_available)
                         .centerCrop()
+                        .resize(50, 50)
                         .into(binding.itemRestaurantPhoto);
             }
         }
@@ -117,10 +118,22 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             binding.itemDistance.setText(context.getString(R.string.distance, distance));
         }
 
-        private void getOpeningStatus() {
+        private void getOpeningStatus(GooglePlaceModel restaurant) {
+            if (restaurant.getOpeningHours() != null) {
+                if (restaurant.getOpeningHours().getOpenNow().toString().equals("true")) {
+                    binding.itemOpeningHours.setText(R.string.open);
+                    binding.itemOpeningHours.setTextColor(context.getResources().getColor(R.color.green));
+                } else {
+                    binding.itemOpeningHours.setText(R.string.closed);
+                    binding.itemOpeningHours.setTextColor(context.getResources().getColor(R.color.red_dark));
+                }
+            } else {
+                binding.itemOpeningHours.setText(R.string.no_opening_hours);
+                binding.itemOpeningHours.setTextColor(context.getResources().getColor(R.color.black));
+            }
         }
+    }
 
-        private void getWorkmateNumber() {
-        }
+    private void getWorkmateNumber() {
     }
 }

@@ -30,6 +30,7 @@
     <string name="no_restaurant">No restaurant found in the surrounding area</string>
     <string name="no_workmate">No available workmate found</string>
     <string name="no_joining_workmate">No workmate is eating in this restaurant</string>
+    <string name="no_opening_hours">Opening hours not available</string>
 
     <string name="update_name">Update your username</string>
     <string name="update_hint">New username</string>
@@ -46,5 +47,7 @@
     <string name="select_place">Select a type of place</string>
 
     <string name="distance">%1$d m</string>
+    <string name="closed">Closed</string>
+    <string name="open">Open now</string>
 
 </resources>

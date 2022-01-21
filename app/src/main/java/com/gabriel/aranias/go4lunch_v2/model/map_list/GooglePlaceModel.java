@@ -1,4 +1,4 @@
-package com.gabriel.aranias.go4lunch_v2.model.map;
+package com.gabriel.aranias.go4lunch_v2.model.map_list;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
@@ -58,6 +58,9 @@ public class GooglePlaceModel {
     @SerializedName("vicinity")
     @Expose
     private String vicinity;
+
+    @SerializedName("opening_hours")
+    private OpeningHoursModel openingHours;
 
     @Expose(serialize = false, deserialize = false)
     private boolean isSaved;
@@ -174,5 +177,13 @@ public class GooglePlaceModel {
 
     public void setSaved(boolean saved) {
         isSaved = saved;
+    }
+
+    public OpeningHoursModel getOpeningHours() {
+        return openingHours;
+    }
+
+    public void setOpeningHours(OpeningHoursModel openingHours) {
+        this.openingHours = openingHours;
     }
 }
