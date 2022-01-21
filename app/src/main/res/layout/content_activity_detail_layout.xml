@@ -27,11 +27,14 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
+                    android:layout_marginTop="12dp"
                     android:layout_marginEnd="16dp"
-                    android:maxLines="2"
-                    android:paddingTop="20dp"
+                    android:ellipsize="end"
+                    android:maxWidth="326dp"
+                    android:maxLines="1"
+                    android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
                     android:textColor="@color/white"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     tools:text="Le Zinc" />
@@ -41,7 +44,9 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
-                    android:maxLines="2"
+                    android:ellipsize="end"
+                    android:maxWidth="330dp"
+                    android:maxLines="1"
                     android:paddingTop="4dp"
                     android:paddingBottom="20dp"
                     android:textColor="@color/white"
@@ -57,10 +62,13 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="14dp"
-                    android:layout_marginTop="28dp"
-                    tools:src="@drawable/star_one"
-                    app:layout_constraintStart_toEndOf="@id/detail_restaurant_name"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:layout_marginTop="24dp"
+                    android:layout_marginEnd="16dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/detail_address"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:src="@drawable/star_three" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -146,8 +154,8 @@
                 android:textColor="@color/black"
                 android:textSize="16sp"
                 app:drawableBottomCompat="@drawable/ic_baseline_person_off_24"
-                app:tint="@color/black"
-                app:drawableTint="@color/black" />
+                app:drawableTint="@color/black"
+                app:tint="@color/black" />
 
         </LinearLayout>
 

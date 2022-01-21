@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.RestaurantItemBinding;
-import com.gabriel.aranias.go4lunch_v2.model.map_list.GooglePlaceModel;
+import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.squareup.picasso.Picasso;
 
@@ -19,13 +19,13 @@ import java.util.Objects;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
-    private List<GooglePlaceModel> restaurants;
-    private OnItemClickListener<GooglePlaceModel> listener;
+    private List<NearbyPlaceModel> restaurants;
+    private OnItemClickListener<NearbyPlaceModel> listener;
     private Location currentLocation;
     private Context context;
 
-    public void updateRestaurantList(List<GooglePlaceModel> restaurants, Location currentLocation,
-                                     OnItemClickListener<GooglePlaceModel> listener) {
+    public void updateRestaurantList(List<NearbyPlaceModel> restaurants, Location currentLocation,
+                                     OnItemClickListener<NearbyPlaceModel> listener) {
         this.restaurants = restaurants;
         this.currentLocation = currentLocation;
         this.listener = listener;
@@ -65,7 +65,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         }
 
         // Display restaurant list w/ info
-        public void bindView(GooglePlaceModel restaurant) {
+        public void bindView(NearbyPlaceModel restaurant) {
             // Name x address
             binding.itemRestaurantName.setText(restaurant.getName());
             binding.itemRestaurantAddress.setText(restaurant.getVicinity());
@@ -81,25 +81,24 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             getWorkmateNumber();
         }
 
-        private void getPhoto(GooglePlaceModel restaurant) {
+        private void getPhoto(NearbyPlaceModel restaurant) {
             if (restaurant.getPhotos() != null && restaurant.getPhotos().size() > 0) {
-
                 Picasso.get()
                         .load(restaurant.getPhotos().get(0).getPhotoUrl())
+                        .fit()
                         .centerCrop()
-                        .resize(50, 50)
                         .error(R.drawable.image_not_available)
                         .into(binding.itemRestaurantPhoto);
             } else {
                 Picasso.get()
                         .load(R.drawable.image_not_available)
+                        .fit()
                         .centerCrop()
-                        .resize(50, 50)
                         .into(binding.itemRestaurantPhoto);
             }
         }
 
-        private void getRating(GooglePlaceModel restaurant) {
+        private void getRating(NearbyPlaceModel restaurant) {
             if (restaurant.getRating() != null) {
                 if (restaurant.getRating() >= 4)
                     binding.itemRating.setImageResource(R.drawable.star_three);
@@ -110,15 +109,15 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             }
         }
 
-        private void getDistance(GooglePlaceModel restaurant) {
+        private void getDistance(NearbyPlaceModel restaurant) {
             Location endPoint = new Location("restaurantLocation");
             endPoint.setLatitude(restaurant.getGeometry().getLocation().getLat());
             endPoint.setLongitude(restaurant.getGeometry().getLocation().getLng());
-            int distance = (int) currentLocation.distanceTo(endPoint);
+            long distance = (long) currentLocation.distanceTo(endPoint);
             binding.itemDistance.setText(context.getString(R.string.distance, distance));
         }
 
-        private void getOpeningStatus(GooglePlaceModel restaurant) {
+        private void getOpeningStatus(NearbyPlaceModel restaurant) {
             if (restaurant.getOpeningHours() != null) {
                 if (restaurant.getOpeningHours().getOpenNow().toString().equals("true")) {
                     binding.itemOpeningHours.setText(R.string.open);

@@ -1,15 +1,15 @@
 package com.gabriel.aranias.go4lunch_v2.model;
 
-public class Place {
+public class CustomPlace {
 
     int id, drawableId;
     String name;
     String placeType;
 
-    public Place() {
+    public CustomPlace() {
     }
 
-    public Place(int id, int drawableId, String name, String placeType) {
+    public CustomPlace(int id, int drawableId, String name, String placeType) {
         this.id = id;
         this.drawableId = drawableId;
         this.name = name;

@@ -1,9 +1,11 @@
-package com.gabriel.aranias.go4lunch_v2.model.map_list;
+package com.gabriel.aranias.go4lunch_v2.model.nearby;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-public class OpeningHoursModel {
+import java.io.Serializable;
+
+public class NearbyPlaceOpeningHours implements Serializable {
 
     @SerializedName("open_now")
     @Expose

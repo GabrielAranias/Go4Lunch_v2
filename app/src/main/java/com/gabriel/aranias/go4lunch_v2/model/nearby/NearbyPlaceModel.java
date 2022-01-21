@@ -1,11 +1,12 @@
-package com.gabriel.aranias.go4lunch_v2.model.map_list;
+package com.gabriel.aranias.go4lunch_v2.model.nearby;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.io.Serializable;
 import java.util.List;
 
-public class GooglePlaceModel {
+public class NearbyPlaceModel implements Serializable {
 
     @SerializedName("business_status")
     @Expose
@@ -13,7 +14,7 @@ public class GooglePlaceModel {
 
     @SerializedName("geometry")
     @Expose
-    private GeometryModel geometry;
+    private NearbyPlaceGeometry geometry;
 
     @SerializedName("icon")
     @Expose
@@ -29,7 +30,7 @@ public class GooglePlaceModel {
 
     @SerializedName("photos")
     @Expose
-    private List<PhotoModel> photos = null;
+    private List<NearbyPlacePhoto> photos = null;
 
     @SerializedName("place_id")
     @Expose
@@ -60,7 +61,16 @@ public class GooglePlaceModel {
     private String vicinity;
 
     @SerializedName("opening_hours")
-    private OpeningHoursModel openingHours;
+    @Expose
+    private NearbyPlaceOpeningHours openingHours;
+
+    @SerializedName("formatted_phone_number")
+    @Expose
+    private String phoneNumber;
+
+    @SerializedName("website")
+    @Expose
+    private String website;
 
     @Expose(serialize = false, deserialize = false)
     private boolean isSaved;
@@ -73,11 +83,11 @@ public class GooglePlaceModel {
         this.businessStatus = businessStatus;
     }
 
-    public GeometryModel getGeometry() {
+    public NearbyPlaceGeometry getGeometry() {
         return geometry;
     }
 
-    public void setGeometry(GeometryModel geometry) {
+    public void setGeometry(NearbyPlaceGeometry geometry) {
         this.geometry = geometry;
     }
 
@@ -106,11 +116,11 @@ public class GooglePlaceModel {
     }
 
 
-    public List<PhotoModel> getPhotos() {
+    public List<NearbyPlacePhoto> getPhotos() {
         return photos;
     }
 
-    public void setPhotos(List<PhotoModel> photos) {
+    public void setPhotos(List<NearbyPlacePhoto> photos) {
         this.photos = photos;
     }
 
@@ -179,11 +189,27 @@ public class GooglePlaceModel {
         isSaved = saved;
     }
 
-    public OpeningHoursModel getOpeningHours() {
+    public NearbyPlaceOpeningHours getOpeningHours() {
         return openingHours;
     }
 
-    public void setOpeningHours(OpeningHoursModel openingHours) {
+    public void setOpeningHours(NearbyPlaceOpeningHours openingHours) {
         this.openingHours = openingHours;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public String getWebsite() {
+        return website;
+    }
+
+    public void setWebsite(String website) {
+        this.website = website;
     }
 }

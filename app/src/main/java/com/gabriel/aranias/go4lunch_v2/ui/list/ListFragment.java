@@ -2,10 +2,12 @@ package com.gabriel.aranias.go4lunch_v2.ui.list;
 
 import static com.gabriel.aranias.go4lunch_v2.utils.Constants.API_KEY;
 import static com.gabriel.aranias.go4lunch_v2.utils.Constants.BASE_URL;
+import static com.gabriel.aranias.go4lunch_v2.utils.Constants.EXTRA_RESTAURANT;
 import static com.gabriel.aranias.go4lunch_v2.utils.Constants.permissionDenied;
 import static com.gabriel.aranias.go4lunch_v2.utils.Constants.radius;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
@@ -23,11 +25,12 @@ import androidx.fragment.app.Fragment;
 
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentListBinding;
-import com.gabriel.aranias.go4lunch_v2.model.Place;
-import com.gabriel.aranias.go4lunch_v2.model.map_list.GooglePlaceModel;
-import com.gabriel.aranias.go4lunch_v2.model.map_list.GoogleResponseModel;
+import com.gabriel.aranias.go4lunch_v2.model.CustomPlace;
+import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
+import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbySearchResponse;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitApi;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitClient;
+import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.gabriel.aranias.go4lunch_v2.utils.PlaceUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -45,7 +48,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class ListFragment extends Fragment implements OnItemClickListener<GooglePlaceModel> {
+public class ListFragment extends Fragment implements OnItemClickListener<NearbyPlaceModel> {
 
     private FragmentListBinding binding;
     private LocationRequest locationRequest;
@@ -54,8 +57,8 @@ public class ListFragment extends Fragment implements OnItemClickListener<Google
     private Location currentLocation;
     private ListAdapter adapter;
     private RetrofitApi retrofitApi;
-    private List<GooglePlaceModel> googlePlaceModelList;
-    private Place selectedPlace;
+    private List<NearbyPlaceModel> nearbyPlaceModelList;
+    private CustomPlace selectedPlace;
 
     public ListFragment() {
     }
@@ -71,7 +74,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Google
         binding = FragmentListBinding.inflate(inflater, container, false);
 
         retrofitApi = RetrofitClient.getRetrofitApi();
-        googlePlaceModelList = new ArrayList<>();
+        nearbyPlaceModelList = new ArrayList<>();
 
         binding.listLocationFab.setOnClickListener(currentLocation -> getCurrentLocation());
 
@@ -84,7 +87,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Google
         binding.listPlaceGroup.setOnCheckedChangeListener((group, checkedId) -> {
 
             if (checkedId != -1) {
-                Place place = PlaceUtils.placeTypes.get(checkedId - 1);
+                CustomPlace place = PlaceUtils.placeTypes.get(checkedId - 1);
                 binding.listPlaceType.setText(place.getName());
                 selectedPlace = place;
                 getPlaces(place.getPlaceType());
@@ -104,7 +107,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Google
     }
 
     private void initChipGroup() {
-        for (Place placeModel : PlaceUtils.placeTypes) {
+        for (CustomPlace placeModel : PlaceUtils.placeTypes) {
             Chip chip = new Chip(requireContext());
             chip.setText(placeModel.getName());
             chip.setId(placeModel.getId());
@@ -174,24 +177,24 @@ public class ListFragment extends Fragment implements OnItemClickListener<Google
                 + "&radius=" + radius + "&type=" + placeName + "&key=" + API_KEY;
 
         if (currentLocation != null) {
-            retrofitApi.getNearByPlaces(url).enqueue(new Callback<GoogleResponseModel>() {
+            retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
                 @SuppressLint("NotifyDataSetChanged")
                 @Override
-                public void onResponse(@NonNull Call<GoogleResponseModel> call,
-                                       @NonNull Response<GoogleResponseModel> response) {
+                public void onResponse(@NonNull Call<NearbySearchResponse> call,
+                                       @NonNull Response<NearbySearchResponse> response) {
                     Gson gson = new Gson();
                     String res = gson.toJson(response.body());
                     Log.d("TAG", "onResponse: " + res);
                     if (response.errorBody() == null) {
                         if (response.body() != null) {
-                            if (response.body().getGooglePlaceModelList() != null &&
-                                    response.body().getGooglePlaceModelList().size() > 0) {
-                                adapter.updateRestaurantList(googlePlaceModelList, currentLocation, ListFragment.this);
+                            if (response.body().getNearbyPlaceModelList() != null &&
+                                    response.body().getNearbyPlaceModelList().size() > 0) {
+                                adapter.updateRestaurantList(nearbyPlaceModelList, currentLocation, ListFragment.this);
                                 adapter.notifyDataSetChanged();
-                                googlePlaceModelList.clear();
-                                googlePlaceModelList.addAll(response.body().getGooglePlaceModelList());
+                                nearbyPlaceModelList.clear();
+                                nearbyPlaceModelList.addAll(response.body().getNearbyPlaceModelList());
                             } else {
-                                googlePlaceModelList.clear();
+                                nearbyPlaceModelList.clear();
                                 radius += 1000;
                                 getPlaces(placeName);
                             }
@@ -204,7 +207,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Google
                 }
 
                 @Override
-                public void onFailure(@NonNull Call<GoogleResponseModel> call, @NonNull Throwable t) {
+                public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
                     Log.d("TAG", "onFailure: " + t);
                 }
             });
@@ -212,8 +215,10 @@ public class ListFragment extends Fragment implements OnItemClickListener<Google
     }
 
     @Override
-    public void onItemClicked(GooglePlaceModel restaurant) {
-
+    public void onItemClicked(NearbyPlaceModel restaurant) {
+        Intent intent = new Intent(requireActivity(), DetailActivity.class);
+        intent.putExtra(EXTRA_RESTAURANT, restaurant);
+        startActivity(intent);
     }
 
     @Override

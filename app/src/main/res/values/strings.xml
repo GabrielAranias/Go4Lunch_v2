@@ -14,7 +14,7 @@
     <string name="nav_hungry">I\'m Hungry!</string>
     <string name="nav_workmates">Available Workmates</string>
 
-    <string name="label_detail">Restaurant Details</string>
+    <string name="label_detail">Place Details</string>
     <string name="label_settings">Settings</string>
 
     <string name="nd_your_lunch">YOUR LUNCH</string>
@@ -29,8 +29,10 @@
     <string name="no_username">No username found</string>
     <string name="no_restaurant">No restaurant found in the surrounding area</string>
     <string name="no_workmate">No available workmate found</string>
-    <string name="no_joining_workmate">No workmate is eating in this restaurant</string>
+    <string name="no_joining_workmate">No workmate is eating in this place</string>
     <string name="no_opening_hours">Opening hours not available</string>
+    <string name="no_phone_number">No phone number found for this place</string>
+    <string name="no_website">No website found for this place</string>
 
     <string name="update_name">Update your username</string>
     <string name="update_hint">New username</string>
