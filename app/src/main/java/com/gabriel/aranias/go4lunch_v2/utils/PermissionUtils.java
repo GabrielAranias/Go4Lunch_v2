@@ -1,8 +1,5 @@
 package com.gabriel.aranias.go4lunch_v2.utils;
 
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.ARGUMENT_FINISH_ACTIVITY;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.ARGUMENT_PERMISSION_REQUEST_CODE;
-
 import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -42,6 +39,8 @@ public abstract class PermissionUtils {
     public static class RationaleDialog extends DialogFragment {
 
         private boolean finishActivity = false;
+        private static final String ARGUMENT_PERMISSION_REQUEST_CODE = "requestCode";
+        private static final String ARGUMENT_FINISH_ACTIVITY = "finish";
 
         // Create new instance of dialog displaying rationale for use of location permission
         public static RationaleDialog newInstance(int requestCode, boolean finishActivity) {

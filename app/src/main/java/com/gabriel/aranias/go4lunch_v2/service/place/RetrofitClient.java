@@ -1,7 +1,5 @@
 package com.gabriel.aranias.go4lunch_v2.service.place;
 
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.BASE_URL;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -12,6 +10,7 @@ import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 public class RetrofitClient {
 
+    private static final String BASE_URL = "https://maps.googleapis.com";
     private static final Gson gson = new GsonBuilder().setLenient().create();
     private static final OkHttpClient httpClient = new OkHttpClient.Builder().build();
     private static final Retrofit retrofit = new Retrofit.Builder()

@@ -64,14 +64,6 @@ public class NearbyPlaceModel implements Serializable {
     @Expose
     private NearbyPlaceOpeningHours openingHours;
 
-    @SerializedName("formatted_phone_number")
-    @Expose
-    private String phoneNumber;
-
-    @SerializedName("website")
-    @Expose
-    private String website;
-
     @Expose(serialize = false, deserialize = false)
     private boolean isSaved;
 
@@ -195,21 +187,5 @@ public class NearbyPlaceModel implements Serializable {
 
     public void setOpeningHours(NearbyPlaceOpeningHours openingHours) {
         this.openingHours = openingHours;
-    }
-
-    public String getPhoneNumber() {
-        return phoneNumber;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
-        this.phoneNumber = phoneNumber;
-    }
-
-    public String getWebsite() {
-        return website;
-    }
-
-    public void setWebsite(String website) {
-        this.website = website;
     }
 }

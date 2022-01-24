@@ -1,8 +1,5 @@
 package com.gabriel.aranias.go4lunch_v2.service.user;
 
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.USERNAME_FIELD;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.USER_COLLECTION;
-
 import android.content.Context;
 
 import androidx.annotation.Nullable;
@@ -21,6 +18,8 @@ import java.util.Objects;
 public final class UserRepository {
 
     private static volatile UserRepository instance;
+    private static final String USER_COLLECTION = "users";
+    private static final String USERNAME_FIELD = "username";
 
     private UserRepository() {
     }

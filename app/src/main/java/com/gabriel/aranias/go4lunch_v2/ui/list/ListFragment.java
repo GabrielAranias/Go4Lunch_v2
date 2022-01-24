@@ -1,13 +1,9 @@
 package com.gabriel.aranias.go4lunch_v2.ui.list;
 
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.API_KEY;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.BASE_URL;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.EXTRA_RESTAURANT;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.permissionDenied;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.radius;
-
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Looper;
@@ -23,6 +19,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentListBinding;
 import com.gabriel.aranias.go4lunch_v2.model.CustomPlace;
@@ -51,6 +48,7 @@ import retrofit2.Response;
 public class ListFragment extends Fragment implements OnItemClickListener<NearbyPlaceModel> {
 
     private FragmentListBinding binding;
+    private static final String API_KEY = BuildConfig.MAPS_API_KEY;
     private LocationRequest locationRequest;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
@@ -58,6 +56,8 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
     private ListAdapter adapter;
     private RetrofitApi retrofitApi;
     private List<NearbyPlaceModel> nearbyPlaceModelList;
+    private int radius = 5000;
+    private static final String EXTRA_RESTAURANT = "restaurant";
     private CustomPlace selectedPlace;
 
     public ListFragment() {
@@ -145,7 +145,8 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
 
     @SuppressLint("MissingPermission")
     private void startLocationUpdate() {
-        if (permissionDenied) {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
@@ -159,7 +160,8 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
 
     @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
-        if (permissionDenied) {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location ->
@@ -172,45 +174,48 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
     }
 
     private void getPlaces(String placeName) {
-        String url = BASE_URL + "nearbysearch/json?location="
-                + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
-                + "&radius=" + radius + "&type=" + placeName + "&key=" + API_KEY;
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
+                    + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
+                    + "&radius=" + radius + "&type=" + placeName + "&key=" + API_KEY;
 
-        if (currentLocation != null) {
-            retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
-                @SuppressLint("NotifyDataSetChanged")
-                @Override
-                public void onResponse(@NonNull Call<NearbySearchResponse> call,
-                                       @NonNull Response<NearbySearchResponse> response) {
-                    Gson gson = new Gson();
-                    String res = gson.toJson(response.body());
-                    Log.d("TAG", "onResponse: " + res);
-                    if (response.errorBody() == null) {
-                        if (response.body() != null) {
-                            if (response.body().getNearbyPlaceModelList() != null &&
-                                    response.body().getNearbyPlaceModelList().size() > 0) {
-                                adapter.updateRestaurantList(nearbyPlaceModelList, currentLocation, ListFragment.this);
-                                adapter.notifyDataSetChanged();
-                                nearbyPlaceModelList.clear();
-                                nearbyPlaceModelList.addAll(response.body().getNearbyPlaceModelList());
-                            } else {
-                                nearbyPlaceModelList.clear();
-                                radius += 1000;
-                                getPlaces(placeName);
+            if (currentLocation != null) {
+                retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
+                    @SuppressLint("NotifyDataSetChanged")
+                    @Override
+                    public void onResponse(@NonNull Call<NearbySearchResponse> call,
+                                           @NonNull Response<NearbySearchResponse> response) {
+                        Gson gson = new Gson();
+                        String res = gson.toJson(response.body());
+                        Log.d("TAG", "onResponse: " + res);
+                        if (response.errorBody() == null) {
+                            if (response.body() != null) {
+                                if (response.body().getNearbyPlaceModelList() != null &&
+                                        response.body().getNearbyPlaceModelList().size() > 0) {
+                                    adapter.updateRestaurantList(nearbyPlaceModelList, currentLocation, ListFragment.this);
+                                    nearbyPlaceModelList.clear();
+                                    nearbyPlaceModelList.addAll(response.body().getNearbyPlaceModelList());
+                                    adapter.notifyDataSetChanged();
+                                } else {
+                                    nearbyPlaceModelList.clear();
+                                    radius += 1000;
+                                    getPlaces(placeName);
+                                }
                             }
+                        } else {
+                            Log.d("TAG", "onResponse: " + response.errorBody());
+                            Toast.makeText(requireContext(), "Error: " + response.errorBody(),
+                                    Toast.LENGTH_SHORT).show();
                         }
-                    } else {
-                        Log.d("TAG", "onResponse: " + response.errorBody());
-                        Toast.makeText(requireContext(), "Error: " + response.errorBody(),
-                                Toast.LENGTH_SHORT).show();
                     }
-                }
 
-                @Override
-                public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
-                    Log.d("TAG", "onFailure: " + t);
-                }
-            });
+                    @Override
+                    public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
+                        Log.d("TAG", "onFailure: " + t);
+                    }
+                });
+            }
         }
     }
 

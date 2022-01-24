@@ -1,13 +1,9 @@
 package com.gabriel.aranias.go4lunch_v2.ui.map;
 
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.API_KEY;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.BASE_URL;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.EXTRA_RESTAURANT;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.permissionDenied;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.radius;
-
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
@@ -26,6 +22,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentMapBinding;
 import com.gabriel.aranias.go4lunch_v2.model.CustomPlace;
@@ -66,6 +63,7 @@ import retrofit2.Response;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private FragmentMapBinding binding;
+    private static final String API_KEY = BuildConfig.MAPS_API_KEY;
     private GoogleMap map;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
@@ -76,6 +74,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private LoadingDialog loadingDialog;
     private RetrofitApi retrofitApi;
     private List<NearbyPlaceModel> nearbyPlaceModelList;
+    private int radius = 5000;
+    private static final String EXTRA_RESTAURANT = "restaurant";
     private CustomPlace selectedPlace;
 
     public MapFragment() {
@@ -147,14 +147,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
 
-        if (!permissionDenied) {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
             setUpMap();
         }
     }
 
     @SuppressLint({"MissingPermission", "PotentialBehaviorOverride"})
     private void setUpMap() {
-        if (permissionDenied) {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         map.setMyLocationEnabled(true);
@@ -195,7 +197,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private void startLocationUpdate() {
-        if (permissionDenied) {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback,
@@ -209,7 +212,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     @SuppressLint("MissingPermission")
     private void getCurrentLocation() {
-        if (permissionDenied) {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
             return;
         }
         fusedLocationProviderClient.getLastLocation().addOnSuccessListener(location -> {
@@ -242,9 +246,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void getPlaces(String placeName) {
-        if (!permissionDenied) {
+        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) {
             loadingDialog.startLoading();
-            String url = BASE_URL + "nearbysearch/json?location="
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                     + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
                     + "&radius=" + radius + "&type=" + placeName + "&key=" + API_KEY;
 

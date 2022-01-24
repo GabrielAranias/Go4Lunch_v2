@@ -1,8 +1,5 @@
 package com.gabriel.aranias.go4lunch_v2.ui.detail;
 
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.API_KEY;
-import static com.gabriel.aranias.go4lunch_v2.utils.Constants.EXTRA_RESTAURANT;
-
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -10,6 +7,7 @@ import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityDetailBinding;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
@@ -29,6 +27,8 @@ import java.util.Objects;
 public class DetailActivity extends AppCompatActivity {
 
     private ActivityDetailBinding binding;
+    private static final String API_KEY = BuildConfig.MAPS_API_KEY;
+    private static final String EXTRA_RESTAURANT = "restaurant";
     private PlacesClient placesClient;
 
     @Override
