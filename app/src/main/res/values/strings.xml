@@ -52,4 +52,8 @@
     <string name="closed">Closed</string>
     <string name="open">Open now</string>
 
+    <string name="not_decided">"%1$s hasn\'t decided yet</string>
+
+    <string name="fetching_data">Fetching data…</string>
+
 </resources>

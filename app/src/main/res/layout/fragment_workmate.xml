@@ -1,31 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.workmate.WorkmateFragment">
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/workmate_list"
+        android:id="@+id/workmate_rv"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:visibility="gone"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/workmate_item"
-        tools:visibility="visible" />
-
-    <TextView
-        android:id="@+id/no_workmate_tv"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:drawablePadding="16dp"
-        android:text="@string/no_workmate"
-        android:textColor="@color/black"
-        android:textSize="24sp"
-        app:drawableBottomCompat="@drawable/ic_baseline_person_off_24"
-        app:drawableTint="@color/black"
-        app:tint="@color/black" />
+        tools:listitem="@layout/workmate_item" />
 
 </FrameLayout>

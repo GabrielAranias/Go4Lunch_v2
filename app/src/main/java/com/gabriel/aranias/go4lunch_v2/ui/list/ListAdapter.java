@@ -15,7 +15,6 @@ import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
-import java.util.Objects;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
@@ -59,8 +58,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             super(binding.getRoot());
             this.binding = binding;
 
-            Objects.requireNonNull(this.binding.restaurantItem).setOnClickListener(v ->
-
+            this.binding.restaurantItem.setOnClickListener(v ->
                     listener.onItemClicked(restaurants.get(getAdapterPosition())));
         }
 

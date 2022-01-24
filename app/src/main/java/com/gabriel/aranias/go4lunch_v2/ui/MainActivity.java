@@ -49,6 +49,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         enableDeviceLocation();
     }
 
+    // Start LoginActivity if user hasn't signed in
     private void checkUser() {
         if (!userHelper.isCurrentUserLoggedIn()) {
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -57,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         }
     }
 
-    // Initial state
+    // Initial state if user has signed in
     private void initMapFragment() {
         Fragment fragment = new MapFragment();
         binding.mainToolbar.setTitle(R.string.nav_hungry);
@@ -125,15 +126,13 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     // Display user info in drawer header
     private void getUserData() {
-        if (userHelper.isCurrentUserLoggedIn()) {
-            FirebaseUser user = userHelper.getCurrentUser();
-            if (user.getPhotoUrl() != null) {
-                setProfilePicture(user.getPhotoUrl());
-            } else {
-                setDefaultProfilePicture();
-            }
-            setUserTextInfo(user);
+        FirebaseUser user = userHelper.getCurrentUser();
+        if (user.getPhotoUrl() != null) {
+            setProfilePicture(user.getPhotoUrl());
+        } else {
+            setDefaultProfilePicture();
         }
+        setUserTextInfo(user);
     }
 
     private void setProfilePicture(Uri photoUrl) {
