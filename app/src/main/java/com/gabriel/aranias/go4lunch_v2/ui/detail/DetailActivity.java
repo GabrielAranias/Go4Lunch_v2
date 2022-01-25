@@ -6,11 +6,13 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityDetailBinding;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
+import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -18,10 +20,14 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 public class DetailActivity extends AppCompatActivity {
@@ -29,7 +35,10 @@ public class DetailActivity extends AppCompatActivity {
     private ActivityDetailBinding binding;
     private static final String API_KEY = BuildConfig.MAPS_API_KEY;
     private static final String EXTRA_RESTAURANT = "restaurant";
+    private static final String FAV_FIELD = "favorite restaurants";
+    private static final String LUNCH_SPOT_FIELD = "lunch spot";
     private PlacesClient placesClient;
+    private final UserHelper userHelper = UserHelper.getInstance();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +86,8 @@ public class DetailActivity extends AppCompatActivity {
 
             displayDetails(restaurant);
             getDetailsApi(restaurant);
+            initLikeBtn(restaurant);
+            initLunchSpotFab(restaurant);
         }
     }
 
@@ -158,5 +169,125 @@ public class DetailActivity extends AppCompatActivity {
                 Log.e("TAG", "Error: " + statusCode);
             }
         });
+    }
+
+    // Change initial state view if restaurant is liked
+    private void initLikeBtn(NearbyPlaceModel restaurant) {
+        userHelper.getUserCollection().document(
+                userHelper.getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
+            @SuppressWarnings("unchecked")
+            List<String> favRestaurants = (List<String>) task.getResult().get(FAV_FIELD);
+            if (favRestaurants != null) {
+                for (String restaurantId : favRestaurants) {
+                    if (restaurantId.equals(restaurant.getPlaceId())) {
+                        binding.detailContent.detailLikeBtn.setText(R.string.detail_unlike);
+                        binding.detailContent.detailLikeBtn.setIcon(ContextCompat.getDrawable
+                                (getApplicationContext(), R.drawable.ic_baseline_star_24));
+                    }
+                }
+            }
+        });
+        setLikeBtnListener(restaurant);
+    }
+
+    // Check if restaurant is already liked by user
+    private void setLikeBtnListener(NearbyPlaceModel restaurant) {
+        binding.detailContent.detailLikeBtn.setOnClickListener(view ->
+                userHelper.getUserCollection().document(
+                        userHelper.getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
+                    @SuppressWarnings("unchecked")
+                    List<String> favRestaurants = (List<String>) task.getResult().get(FAV_FIELD);
+                    likeRestaurant(restaurant);
+                    if (favRestaurants != null) {
+                        for (String restaurantId : favRestaurants) {
+                            if (restaurantId.equals(restaurant.getPlaceId())) {
+                                unlikeRestaurant(restaurant);
+                            }
+                        }
+                    }
+                }));
+    }
+
+    // Update view x add fav in Firestore
+    private void likeRestaurant(NearbyPlaceModel restaurant) {
+        binding.detailContent.detailLikeBtn.setText(R.string.detail_unlike);
+        binding.detailContent.detailLikeBtn.setIcon(ContextCompat.getDrawable
+                (getApplicationContext(), R.drawable.ic_baseline_star_24));
+        userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid())
+                .update(FAV_FIELD, FieldValue.arrayUnion(restaurant.getPlaceId()));
+        Snackbar.make(binding.getRoot(), R.string.fav_add, Snackbar.LENGTH_SHORT).show();
+    }
+
+    // Update view x remove fav from Firestore
+    private void unlikeRestaurant(NearbyPlaceModel restaurant) {
+        binding.detailContent.detailLikeBtn.setText(R.string.detail_like);
+        binding.detailContent.detailLikeBtn.setIcon(ContextCompat.getDrawable
+                (getApplicationContext(), R.drawable.ic_baseline_star_border_24));
+        userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid())
+                .update(FAV_FIELD, FieldValue.arrayRemove(restaurant.getPlaceId()));
+        Snackbar.make(binding.getRoot(), R.string.fav_remove, Snackbar.LENGTH_SHORT).show();
+    }
+
+    // Change initial state view if restaurant is lunch spot
+    private void initLunchSpotFab(NearbyPlaceModel restaurant) {
+        if (userHelper.getCurrentUser() != null) {
+            userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.getResult() != null) {
+                            String result = task.getResult().getString(LUNCH_SPOT_FIELD);
+                            if (result != null) {
+                                if (result.equals(restaurant.getPlaceId())) {
+                                    binding.detailLunchSpotFab.setImageDrawable(ContextCompat.getDrawable(
+                                            getApplicationContext(), R.drawable.ic_baseline_check_circle_24));
+                                    binding.detailLunchSpotFab.getDrawable().setTint(getResources()
+                                            .getColor(R.color.green));
+                                }
+                            }
+                        }
+                    });
+        }
+        setFabListener(restaurant);
+    }
+
+    // Check if restaurant is already lunch spot
+    private void setFabListener(NearbyPlaceModel restaurant) {
+        binding.detailLunchSpotFab.setOnClickListener(view ->
+                userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.getResult() != null) {
+                        String result = task.getResult().getString(LUNCH_SPOT_FIELD);
+                        isLunchSpot(result == null ||
+                                !result.equals(restaurant.getPlaceId()), restaurant);
+                    }
+                }));
+    }
+
+    private void isLunchSpot(boolean b, NearbyPlaceModel restaurant) {
+        int drawable;
+        int color;
+        String msg;
+        // Update in Firestore
+        Map<String, Object> data = new HashMap<>();
+        if (b) {
+            data.put(LUNCH_SPOT_FIELD, restaurant.getPlaceId());
+            drawable = R.drawable.ic_baseline_check_circle_24;
+            color = R.color.green;
+            msg = getResources().getString(R.string.lunch_spot_add);
+        } else {
+            data.put(LUNCH_SPOT_FIELD, null);
+            drawable = R.drawable.ic_baseline_lunch_dining_24;
+            color = R.color.red_primary;
+            msg = getResources().getString(R.string.lunch_spot_remove);
+        }
+        if (userHelper.getCurrentUser() != null) {
+            userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid())
+                    .set(data, SetOptions.merge()).addOnSuccessListener(aVoid -> {
+                binding.detailLunchSpotFab.setImageDrawable(ContextCompat.getDrawable(
+                        getApplicationContext(), drawable));
+                binding.detailLunchSpotFab.getDrawable().setTint(getResources().getColor(color));
+                Snackbar.make(binding.getRoot(), msg, Snackbar.LENGTH_SHORT).show();
+            }).addOnFailureListener(e ->
+                    Log.e("TAG", "Firestore failure " + e));
+        }
     }
 }

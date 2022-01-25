@@ -5,6 +5,7 @@ import android.content.Context;
 import com.gabriel.aranias.go4lunch_v2.model.User;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
 
 import java.util.Objects;
 
@@ -62,5 +63,9 @@ public class UserHelper {
 
     public Task<Void> updateUsername(String username){
         return userRepository.updateUsername(username);
+    }
+
+    public CollectionReference getUserCollection() {
+        return userRepository.getUserCollection();
     }
 }

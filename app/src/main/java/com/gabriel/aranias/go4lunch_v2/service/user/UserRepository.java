@@ -51,7 +51,7 @@ public final class UserRepository {
     }
 
     // Get collection reference
-    private CollectionReference getUserCollection() {
+    public CollectionReference getUserCollection() {
         return FirebaseFirestore.getInstance().collection(USER_COLLECTION);
     }
 

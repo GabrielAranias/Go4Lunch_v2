@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -20,6 +21,7 @@ import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityMainBinding;
 import com.gabriel.aranias.go4lunch_v2.databinding.HeaderNavigationDrawerBinding;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
 import com.gabriel.aranias.go4lunch_v2.ui.list.ListFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.map.MapFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.workmate.WorkmateFragment;
@@ -33,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private final UserHelper userHelper = UserHelper.getInstance();
     private boolean permissionDenied;
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 42;
+    private static final String LUNCH_SPOT_FIELD = "lunch spot";
+    private static final String EXTRA_RESTAURANT = "restaurant";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -160,6 +164,21 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     private void getLunchDetails() {
+        if (userHelper.getCurrentUser() != null) {
+            userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
+                    .addOnCompleteListener(task -> {
+                        if (task.getResult() != null) {
+                            String result = task.getResult().getString(LUNCH_SPOT_FIELD);
+                            if (result != null) {
+                                Intent intent = new Intent(getBaseContext(), DetailActivity.class);
+                                intent.putExtra(EXTRA_RESTAURANT, result);
+                                startActivity(intent);
+                            } else {
+                                Toast.makeText(this, R.string.not_selected, Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    });
+        }
     }
 
     private void logOut() {

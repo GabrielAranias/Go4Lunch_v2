@@ -104,11 +104,12 @@
                     android:minHeight="48dp"
                     android:text="@string/detail_like"
                     android:textColor="@color/red_primary"
-                    app:icon="@drawable/ic_baseline_star_24"
+                    app:icon="@drawable/ic_baseline_star_border_24"
                     app:iconGravity="top"
                     app:iconTint="@color/red_primary"
                     app:layout_constraintStart_toEndOf="@id/detail_call_btn"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:rippleColor="@color/red_light" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/detail_website_btn"

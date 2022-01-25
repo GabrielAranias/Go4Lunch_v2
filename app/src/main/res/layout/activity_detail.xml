@@ -52,7 +52,7 @@
         app:layout_anchor="@id/detail_appbar_layout"
         app:layout_anchorGravity="bottom|end"
         app:rippleColor="@color/green_light"
-        app:srcCompat="@drawable/ic_baseline_check_circle_24"
-        app:tint="@color/green" />
+        app:srcCompat="@drawable/ic_baseline_lunch_dining_24"
+        app:tint="@color/red_primary" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

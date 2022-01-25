@@ -23,12 +23,11 @@
 
     <string name="detail_call">CALL</string>
     <string name="detail_like">LIKE</string>
+    <string name="detail_unlike">UNLIKE</string>
     <string name="detail_website">WEBSITE</string>
 
     <string name="no_user_email">No email address found</string>
     <string name="no_username">No username found</string>
-    <string name="no_restaurant">No restaurant found in the surrounding area</string>
-    <string name="no_workmate">No available workmate found</string>
     <string name="no_joining_workmate">No workmate is eating in this place</string>
     <string name="no_opening_hours">Opening hours not available</string>
     <string name="no_phone_number">No phone number found for this place</string>
@@ -53,7 +52,13 @@
     <string name="open">Open now</string>
 
     <string name="not_decided">"%1$s hasn\'t decided yet</string>
+    <string name="not_selected">You haven\'t selected a place for lunch yet</string>
 
     <string name="fetching_data">Fetching data…</string>
+
+    <string name="fav_add">This place has been added to your Favorites</string>
+    <string name="fav_remove">This place has been removed from your Favorites</string>
+    <string name="lunch_spot_add">You\'re going to this place for lunch</string>
+    <string name="lunch_spot_remove">You\'re not going to this place for lunch anymore</string>
 
 </resources>
