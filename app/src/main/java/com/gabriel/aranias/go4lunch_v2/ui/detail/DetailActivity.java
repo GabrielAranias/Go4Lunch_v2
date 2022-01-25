@@ -131,12 +131,10 @@ public class DetailActivity extends AppCompatActivity {
 
     // Set up listeners for call x website btn
     private void getDetailsApi(NearbyPlaceModel restaurant) {
-        // Define place id
-        String placeId = restaurant.getPlaceId();
         // Specify fields to return
         List<Place.Field> placeFields = Arrays.asList(Place.Field.PHONE_NUMBER, Place.Field.WEBSITE_URI);
         // Construct request object, passing place id x field array
-        FetchPlaceRequest request = FetchPlaceRequest.newInstance(placeId, placeFields);
+        FetchPlaceRequest request = FetchPlaceRequest.newInstance(restaurant.getPlaceId(), placeFields);
 
         placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
             Place place = response.getPlace();
@@ -178,8 +176,8 @@ public class DetailActivity extends AppCompatActivity {
             @SuppressWarnings("unchecked")
             List<String> favRestaurants = (List<String>) task.getResult().get(FAV_FIELD);
             if (favRestaurants != null) {
-                for (String restaurantId : favRestaurants) {
-                    if (restaurantId.equals(restaurant.getPlaceId())) {
+                for (String placeId : favRestaurants) {
+                    if (placeId.equals(restaurant.getPlaceId())) {
                         binding.detailContent.detailLikeBtn.setText(R.string.detail_unlike);
                         binding.detailContent.detailLikeBtn.setIcon(ContextCompat.getDrawable
                                 (getApplicationContext(), R.drawable.ic_baseline_star_24));
@@ -199,8 +197,8 @@ public class DetailActivity extends AppCompatActivity {
                     List<String> favRestaurants = (List<String>) task.getResult().get(FAV_FIELD);
                     likeRestaurant(restaurant);
                     if (favRestaurants != null) {
-                        for (String restaurantId : favRestaurants) {
-                            if (restaurantId.equals(restaurant.getPlaceId())) {
+                        for (String placeId : favRestaurants) {
+                            if (placeId.equals(restaurant.getPlaceId())) {
                                 unlikeRestaurant(restaurant);
                             }
                         }
@@ -253,13 +251,13 @@ public class DetailActivity extends AppCompatActivity {
     private void setFabListener(NearbyPlaceModel restaurant) {
         binding.detailLunchSpotFab.setOnClickListener(view ->
                 userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
-                .addOnCompleteListener(task -> {
-                    if (task.getResult() != null) {
-                        String result = task.getResult().getString(LUNCH_SPOT_FIELD);
-                        isLunchSpot(result == null ||
-                                !result.equals(restaurant.getPlaceId()), restaurant);
-                    }
-                }));
+                        .addOnCompleteListener(task -> {
+                            if (task.getResult() != null) {
+                                String result = task.getResult().getString(LUNCH_SPOT_FIELD);
+                                isLunchSpot(result == null ||
+                                        !result.equals(restaurant.getPlaceId()), restaurant);
+                            }
+                        }));
     }
 
     private void isLunchSpot(boolean b, NearbyPlaceModel restaurant) {
