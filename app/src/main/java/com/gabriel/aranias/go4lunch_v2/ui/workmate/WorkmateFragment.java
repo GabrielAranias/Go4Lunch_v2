@@ -89,6 +89,11 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
                     for (DocumentChange dc : Objects.requireNonNull(value).getDocumentChanges()) {
                         if (dc.getType() == DocumentChange.Type.ADDED) {
                             workmates.add(dc.getDocument().toObject(User.class));
+                        } else if (dc.getType() == DocumentChange.Type.REMOVED) {
+                            workmates.remove(dc.getDocument().toObject(User.class));
+                        } else if (dc.getType() == DocumentChange.Type.MODIFIED) {
+                            workmates.remove(dc.getDocument().toObject(User.class));
+                            workmates.add(dc.getDocument().toObject(User.class));
                         }
                         adapter.notifyDataSetChanged();
                         if (progressDialog.isShowing()) {

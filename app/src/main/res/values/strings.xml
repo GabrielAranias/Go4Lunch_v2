@@ -52,8 +52,13 @@
     <string name="closed">Closed</string>
     <string name="open">Open now</string>
 
-    <string name="not_decided">"%1$s hasn\'t decided yet</string>
     <string name="not_selected">You haven\'t selected a place for lunch yet</string>
+    <string name="not_decided">%1$s hasn\'t decided yet</string>
+    <string name="decided">%1$s is eating at %2$s</string>
+    <string name="joining">%1$s is joining!</string>
+    <string name="not_decided_current_user">You haven\'t decided yet</string>
+    <string name="decided_current_user">You are eating at %1$s</string>
+    <string name="joining_current_user">You are joining!</string>
 
     <string name="fetching_data">Fetching data…</string>
 

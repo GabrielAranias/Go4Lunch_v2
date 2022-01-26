@@ -99,6 +99,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        binding.listRv.setHasFixedSize(true);
         adapter = new ListAdapter();
         binding.listRv.setAdapter(adapter);
 

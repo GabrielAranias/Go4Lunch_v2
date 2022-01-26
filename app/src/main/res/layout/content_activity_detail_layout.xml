@@ -138,14 +138,14 @@
                 android:background="@color/separator" />
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/detail_workmate_list"
+                android:id="@+id/detail_workmate_rv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/workmate_item" />
 
             <TextView
-                android:id="@+id/no_workmate_tv"
+                android:id="@+id/detail_no_workmate_tv"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"

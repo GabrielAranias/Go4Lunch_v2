@@ -59,7 +59,7 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
         binding.detailAppbarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            boolean isShow = true;
+            boolean isShown = true;
             int scrollRange = -1;
 
             @Override
@@ -69,10 +69,10 @@ public class DetailActivity extends AppCompatActivity {
                 }
                 if (scrollRange + verticalOffset == 0) {
                     binding.detailCollapsingLayout.setTitle(getString(R.string.label_detail));
-                    isShow = true;
-                } else if (isShow) {
+                    isShown = true;
+                } else if (isShown) {
                     binding.detailCollapsingLayout.setTitle(" ");
-                    isShow = false;
+                    isShown = false;
                 }
             }
         });
@@ -88,6 +88,7 @@ public class DetailActivity extends AppCompatActivity {
             getDetailsApi(restaurant);
             initLikeBtn(restaurant);
             initLunchSpotFab(restaurant);
+            getJoiningWorkmates();
         }
     }
 
@@ -287,5 +288,8 @@ public class DetailActivity extends AppCompatActivity {
             }).addOnFailureListener(e ->
                     Log.e("TAG", "Firestore failure " + e));
         }
+    }
+
+    private void getJoiningWorkmates() {
     }
 }

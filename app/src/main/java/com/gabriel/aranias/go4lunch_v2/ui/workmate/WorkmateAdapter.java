@@ -20,7 +20,7 @@ public class WorkmateAdapter extends RecyclerView.Adapter<WorkmateAdapter.ViewHo
 
     private final ArrayList<User> workmates;
     private Context context;
-    private OnItemClickListener<User> listener;
+    private final OnItemClickListener<User> listener;
 
     public WorkmateAdapter(Context context, ArrayList<User> workmates,
                            OnItemClickListener<User> listener) {
@@ -84,8 +84,8 @@ public class WorkmateAdapter extends RecyclerView.Adapter<WorkmateAdapter.ViewHo
         }
 
         private void getLunchSpotText(User workmate) {
-            binding.itemWorkmateLunchSpot.setText(context.getString(R.string.not_decided,
-                    workmate.getUsername()));
+            binding.itemWorkmateLunchSpot.setText(context.getString(
+                    R.string.not_decided, workmate.getUsername()));
         }
     }
 }

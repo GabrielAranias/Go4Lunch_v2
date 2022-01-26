@@ -30,7 +30,6 @@ import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbySearchResponse;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitApi;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitClient;
-import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
 import com.gabriel.aranias.go4lunch_v2.utils.LoadingDialog;
 import com.gabriel.aranias.go4lunch_v2.utils.PlaceUtils;
@@ -51,7 +50,6 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -65,7 +63,6 @@ import retrofit2.Response;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private FragmentMapBinding binding;
-    private final UserHelper userHelper = UserHelper.getInstance();
     private static final String API_KEY = BuildConfig.MAPS_API_KEY;
     private GoogleMap map;
     private LocationRequest locationRequest;
@@ -79,7 +76,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private List<NearbyPlaceModel> nearbyPlaceModelList;
     private int radius = 5000;
     private static final String EXTRA_RESTAURANT = "restaurant";
-    private static final String LUNCH_SPOT_FIELD = "lunch spot";
     private CustomPlace selectedPlace;
 
     public MapFragment() {
@@ -306,31 +302,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         restaurant.getGeometry().getLocation().getLng()))
                 .title(restaurant.getName())
                 .snippet(restaurant.getVicinity());
-        markerOptions.icon(getCustomIcon(restaurant));
+        markerOptions.icon(getCustomIcon());
         Objects.requireNonNull(map.addMarker(markerOptions)).setTag(restaurant);
     }
 
-    private BitmapDescriptor getCustomIcon(NearbyPlaceModel restaurant) {
-        final Integer[] workmateNumber = {0};
-        userHelper.getUserCollection().get().addOnCompleteListener(task -> {
-            if (task.getResult() != null) {
-                for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                    String placeId = documentSnapshot.getString(LUNCH_SPOT_FIELD);
-                    if (placeId != null) {
-                        if (placeId.equals(restaurant.getPlaceId())) {
-                            workmateNumber[0]++;
-                        }
-                    }
-                }
-            }
-        });
-        Drawable background;
-        if (workmateNumber[0] > 0) {
-            background = ContextCompat.getDrawable(requireContext(), R.drawable.marker_green);
-        } else {
-            background = ContextCompat.getDrawable(requireContext(), R.drawable.marker_red);
-        }
-
+    private BitmapDescriptor getCustomIcon() {
+        Drawable background = ContextCompat.getDrawable(requireContext(), R.drawable.marker_red);
         Objects.requireNonNull(background).setBounds(0, 0, background.getIntrinsicWidth(),
                 background.getIntrinsicHeight());
         Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(),
