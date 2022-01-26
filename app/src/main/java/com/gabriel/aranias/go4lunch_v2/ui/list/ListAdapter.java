@@ -3,7 +3,6 @@ package com.gabriel.aranias.go4lunch_v2.ui.list;
 import android.content.Context;
 import android.location.Location;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -12,21 +11,17 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.RestaurantItemBinding;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
-import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
 public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
-    private final UserHelper userHelper = UserHelper.getInstance();
     private List<NearbyPlaceModel> restaurants;
     private OnItemClickListener<NearbyPlaceModel> listener;
     private Location currentLocation;
     private Context context;
-    private static final String LUNCH_SPOT_FIELD = "lunch spot";
 
     public void updateRestaurantList(List<NearbyPlaceModel> restaurants, Location currentLocation,
                                      OnItemClickListener<NearbyPlaceModel> listener) {
@@ -81,7 +76,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             // Opening hours
             getOpeningStatus(restaurant);
             // #workmates
-            getWorkmateNumber(restaurant);
+            getWorkmateNumber();
         }
 
         private void getPhoto(NearbyPlaceModel restaurant) {
@@ -134,26 +129,8 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
                 binding.itemOpeningHours.setTextColor(context.getResources().getColor(R.color.black));
             }
         }
+    }
 
-        private void getWorkmateNumber(NearbyPlaceModel restaurant) {
-            final Integer[] workmateNumber = {0};
-            userHelper.getUserCollection().get().addOnCompleteListener(task -> {
-                if (task.getResult() != null) {
-                    for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                        String placeId = documentSnapshot.getString(LUNCH_SPOT_FIELD);
-                        if (placeId != null) {
-                            if (placeId.equals(restaurant.getPlaceId())) {
-                                workmateNumber[0]++;
-                                if (workmateNumber[0] > 0) {
-                                    binding.itemNbWorkmatesIcon.setVisibility(View.VISIBLE);
-                                    binding.itemNbWorkmatesCounter.setText(context.getString(
-                                            R.string.workmate_number, workmateNumber[0]));
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-        }
+    private void getWorkmateNumber() {
     }
 }

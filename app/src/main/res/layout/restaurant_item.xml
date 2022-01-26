@@ -78,12 +78,10 @@
             android:id="@+id/item_nb_workmates_icon"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:visibility="invisible"
             app:layout_constraintBottom_toTopOf="@id/item_rating"
             app:layout_constraintEnd_toStartOf="@id/item_nb_workmates_counter"
             app:layout_constraintTop_toBottomOf="@id/item_distance"
-            app:srcCompat="@drawable/ic_baseline_person_outline_24"
-            tools:visibility="visible" />
+            app:srcCompat="@drawable/ic_baseline_person_outline_24" />
 
         <TextView
             android:id="@+id/item_nb_workmates_counter"

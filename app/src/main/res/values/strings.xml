@@ -48,7 +48,6 @@
     <string name="select_place">Select a type of place</string>
 
     <string name="distance">%1$d m</string>
-    <string name="workmate_number">(%1$d)</string>
     <string name="closed">Closed</string>
     <string name="open">Open now</string>
 
