@@ -115,8 +115,8 @@
                     android:id="@+id/detail_website_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="70dp"
                     android:layout_marginTop="8dp"
+                    android:layout_marginEnd="10dp"
                     android:background="@android:color/transparent"
                     android:minWidth="48dp"
                     android:minHeight="48dp"
@@ -125,7 +125,7 @@
                     app:icon="@drawable/ic_baseline_public_24"
                     app:iconGravity="top"
                     app:iconTint="@color/red_primary"
-                    app:layout_constraintStart_toEndOf="@id/detail_like_btn"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

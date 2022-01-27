@@ -55,9 +55,6 @@
     <string name="not_decided">%1$s hasn\'t decided yet</string>
     <string name="decided">%1$s is eating at %2$s</string>
     <string name="joining">%1$s is joining!</string>
-    <string name="not_decided_current_user">You haven\'t decided yet</string>
-    <string name="decided_current_user">You are eating at %1$s</string>
-    <string name="joining_current_user">You are joining!</string>
 
     <string name="fetching_data">Fetching data…</string>
 
@@ -65,5 +62,7 @@
     <string name="fav_remove">This place has been removed from your Favorites</string>
     <string name="lunch_spot_add">You\'re going to this place for lunch</string>
     <string name="lunch_spot_remove">You\'re not going to this place for lunch anymore</string>
+
+    <string name="msg_input">Type your message</string>
 
 </resources>

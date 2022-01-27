@@ -15,18 +15,25 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Go4Lunch_v2"
         tools:ignore="AllowBackup">
-
+        <activity
+            android:name=".ui.chat.ChatActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.SettingActivity"
             android:exported="false"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.LoginActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.detail.DetailActivity"
             android:exported="false"
-            android:parentActivityName=".ui.MainActivity" />
+            android:parentActivityName=".ui.MainActivity"
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.MainActivity"
             android:exported="true">

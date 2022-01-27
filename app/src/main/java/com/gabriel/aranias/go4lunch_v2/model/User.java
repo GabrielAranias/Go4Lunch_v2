@@ -2,9 +2,10 @@ package com.gabriel.aranias.go4lunch_v2.model;
 
 import androidx.annotation.Nullable;
 
+import java.io.Serializable;
 import java.util.Objects;
 
-public class User {
+public class User implements Serializable {
 
     private String uid;
     private String username;

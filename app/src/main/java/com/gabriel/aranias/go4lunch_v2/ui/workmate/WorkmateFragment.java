@@ -2,6 +2,7 @@ package com.gabriel.aranias.go4lunch_v2.ui.workmate;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,6 +17,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentWorkmateBinding;
 import com.gabriel.aranias.go4lunch_v2.model.User;
+import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.ui.chat.ChatActivity;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -26,8 +29,10 @@ import java.util.Objects;
 
 public class WorkmateFragment extends Fragment implements OnItemClickListener<User> {
 
+    private final UserHelper userHelper = UserHelper.getInstance();
     private static final String USER_COLLECTION = "users";
     private static final String USERNAME_FIELD = "username";
+    private final static String EXTRA_WORKMATE = "workmate";
     private FragmentWorkmateBinding binding;
     private WorkmateAdapter adapter;
     private ArrayList<User> workmates;
@@ -87,13 +92,17 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
                         return;
                     }
                     for (DocumentChange dc : Objects.requireNonNull(value).getDocumentChanges()) {
+                        User user = dc.getDocument().toObject(User.class);
                         if (dc.getType() == DocumentChange.Type.ADDED) {
-                            workmates.add(dc.getDocument().toObject(User.class));
+                            // Add all workmates except current user
+                            if (!user.getUid().equals(userHelper.getCurrentUser().getUid())) {
+                                workmates.add(user);
+                            }
                         } else if (dc.getType() == DocumentChange.Type.REMOVED) {
-                            workmates.remove(dc.getDocument().toObject(User.class));
+                            workmates.remove(user);
                         } else if (dc.getType() == DocumentChange.Type.MODIFIED) {
-                            workmates.remove(dc.getDocument().toObject(User.class));
-                            workmates.add(dc.getDocument().toObject(User.class));
+                            workmates.remove(user);
+                            workmates.add(user);
                         }
                         adapter.notifyDataSetChanged();
                         if (progressDialog.isShowing()) {
@@ -104,8 +113,10 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
     }
 
     @Override
-    public void onItemClicked(User user) {
-
+    public void onItemClicked(User workmate) {
+        Intent intent = new Intent(requireActivity(), ChatActivity.class);
+        intent.putExtra(EXTRA_WORKMATE, workmate);
+        startActivity(intent);
     }
 
     @Override
