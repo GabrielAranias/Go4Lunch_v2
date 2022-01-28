@@ -53,9 +53,9 @@ public class WorkmateAdapter extends RecyclerView.Adapter<WorkmateAdapter.ViewHo
 
         private final WorkmateItemBinding binding;
 
-        public ViewHolder(@NonNull WorkmateItemBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
+        public ViewHolder(@NonNull WorkmateItemBinding itemBinding) {
+            super(itemBinding.getRoot());
+            this.binding = itemBinding;
 
             this.binding.workmateItem.setOnClickListener(v ->
                     listener.onItemClicked(workmates.get(getAdapterPosition())));

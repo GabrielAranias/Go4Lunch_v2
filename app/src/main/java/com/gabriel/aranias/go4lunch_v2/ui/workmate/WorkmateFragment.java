@@ -19,6 +19,7 @@ import com.gabriel.aranias.go4lunch_v2.databinding.FragmentWorkmateBinding;
 import com.gabriel.aranias.go4lunch_v2.model.User;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.ui.chat.ChatActivity;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,9 +31,6 @@ import java.util.Objects;
 public class WorkmateFragment extends Fragment implements OnItemClickListener<User> {
 
     private final UserHelper userHelper = UserHelper.getInstance();
-    private static final String USER_COLLECTION = "users";
-    private static final String USERNAME_FIELD = "username";
-    private final static String EXTRA_WORKMATE = "workmate";
     private FragmentWorkmateBinding binding;
     private WorkmateAdapter adapter;
     private ArrayList<User> workmates;
@@ -82,7 +80,8 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
 
     @SuppressLint("NotifyDataSetChanged")
     private void EventChangeListener() {
-        db.collection(USER_COLLECTION).orderBy(USERNAME_FIELD, Query.Direction.ASCENDING)
+        db.collection(Constants.USER_COLLECTION)
+                .orderBy(Constants.USERNAME_FIELD, Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {
                         if (progressDialog.isShowing()) {
@@ -115,7 +114,7 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
     @Override
     public void onItemClicked(User workmate) {
         Intent intent = new Intent(requireActivity(), ChatActivity.class);
-        intent.putExtra(EXTRA_WORKMATE, workmate);
+        intent.putExtra(Constants.EXTRA_WORKMATE, workmate);
         startActivity(intent);
     }
 

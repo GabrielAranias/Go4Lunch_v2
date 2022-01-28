@@ -8,11 +8,11 @@ import android.util.Log;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
-import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityDetailBinding;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -33,10 +33,6 @@ import java.util.Objects;
 public class DetailActivity extends AppCompatActivity {
 
     private ActivityDetailBinding binding;
-    private static final String API_KEY = BuildConfig.MAPS_API_KEY;
-    private static final String EXTRA_RESTAURANT = "restaurant";
-    private static final String FAV_FIELD = "favorite restaurants";
-    private static final String LUNCH_SPOT_FIELD = "lunch spot";
     private PlacesClient placesClient;
     private final UserHelper userHelper = UserHelper.getInstance();
 
@@ -46,7 +42,7 @@ public class DetailActivity extends AppCompatActivity {
         binding = ActivityDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Places.initialize(getApplicationContext(), API_KEY);
+        Places.initialize(getApplicationContext(), Constants.API_KEY);
         placesClient = Places.createClient(this);
 
         initToolbar();
@@ -82,7 +78,8 @@ public class DetailActivity extends AppCompatActivity {
     private void getRestaurantDetails() {
         Intent intent = this.getIntent();
         if (intent.getExtras() != null) {
-            NearbyPlaceModel restaurant = (NearbyPlaceModel) intent.getSerializableExtra(EXTRA_RESTAURANT);
+            NearbyPlaceModel restaurant =
+                    (NearbyPlaceModel) intent.getSerializableExtra(Constants.EXTRA_RESTAURANT);
 
             displayDetails(restaurant);
             getDetailsApi(restaurant);
@@ -177,7 +174,7 @@ public class DetailActivity extends AppCompatActivity {
         userHelper.getUserCollection().document(
                 userHelper.getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
             @SuppressWarnings("unchecked")
-            List<String> favRestaurants = (List<String>) task.getResult().get(FAV_FIELD);
+            List<String> favRestaurants = (List<String>) task.getResult().get(Constants.FAV_FIELD);
             if (favRestaurants != null) {
                 for (String restaurantId : favRestaurants) {
                     if (restaurantId.equals(restaurant.getPlaceId())) {
@@ -197,7 +194,8 @@ public class DetailActivity extends AppCompatActivity {
                 userHelper.getUserCollection().document(
                         userHelper.getCurrentUser().getUid()).get().addOnCompleteListener(task -> {
                     @SuppressWarnings("unchecked")
-                    List<String> favRestaurants = (List<String>) task.getResult().get(FAV_FIELD);
+                    List<String> favRestaurants = (List<String>) task.getResult()
+                            .get(Constants.FAV_FIELD);
                     likeRestaurant(restaurant);
                     if (favRestaurants != null) {
                         for (String restaurantId : favRestaurants) {
@@ -215,7 +213,7 @@ public class DetailActivity extends AppCompatActivity {
         binding.detailContent.detailLikeBtn.setIcon(ContextCompat.getDrawable
                 (getApplicationContext(), R.drawable.ic_baseline_star_24));
         userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid())
-                .update(FAV_FIELD, FieldValue.arrayUnion(restaurant.getPlaceId()));
+                .update(Constants.FAV_FIELD, FieldValue.arrayUnion(restaurant.getPlaceId()));
         Snackbar.make(binding.getRoot(), R.string.fav_add, Snackbar.LENGTH_SHORT).show();
     }
 
@@ -225,7 +223,7 @@ public class DetailActivity extends AppCompatActivity {
         binding.detailContent.detailLikeBtn.setIcon(ContextCompat.getDrawable
                 (getApplicationContext(), R.drawable.ic_baseline_star_border_24));
         userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid())
-                .update(FAV_FIELD, FieldValue.arrayRemove(restaurant.getPlaceId()));
+                .update(Constants.FAV_FIELD, FieldValue.arrayRemove(restaurant.getPlaceId()));
         Snackbar.make(binding.getRoot(), R.string.fav_remove, Snackbar.LENGTH_SHORT).show();
     }
 
@@ -235,7 +233,7 @@ public class DetailActivity extends AppCompatActivity {
             userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
                     .addOnCompleteListener(task -> {
                         if (task.getResult() != null) {
-                            String result = task.getResult().getString(LUNCH_SPOT_FIELD);
+                            String result = task.getResult().getString(Constants.LUNCH_SPOT_FIELD);
                             if (result != null) {
                                 if (result.equals(restaurant.getPlaceId())) {
                                     binding.detailLunchSpotFab.setImageDrawable(ContextCompat.getDrawable(
@@ -254,13 +252,13 @@ public class DetailActivity extends AppCompatActivity {
     private void setFabListener(NearbyPlaceModel restaurant) {
         binding.detailLunchSpotFab.setOnClickListener(view ->
                 userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
-                .addOnCompleteListener(task -> {
-                    if (task.getResult() != null) {
-                        String result = task.getResult().getString(LUNCH_SPOT_FIELD);
-                        isLunchSpot(result == null ||
-                                !result.equals(restaurant.getPlaceId()), restaurant);
-                    }
-                }));
+                        .addOnCompleteListener(task -> {
+                            if (task.getResult() != null) {
+                                String result = task.getResult().getString(Constants.LUNCH_SPOT_FIELD);
+                                isLunchSpot(result == null ||
+                                        !result.equals(restaurant.getPlaceId()), restaurant);
+                            }
+                        }));
     }
 
     private void isLunchSpot(boolean b, NearbyPlaceModel restaurant) {
@@ -270,12 +268,12 @@ public class DetailActivity extends AppCompatActivity {
         // Update in Firestore
         Map<String, Object> data = new HashMap<>();
         if (b) {
-            data.put(LUNCH_SPOT_FIELD, restaurant.getPlaceId());
+            data.put(Constants.LUNCH_SPOT_FIELD, restaurant.getPlaceId());
             drawable = R.drawable.ic_baseline_check_circle_24;
             color = R.color.green;
             msg = getResources().getString(R.string.lunch_spot_add);
         } else {
-            data.put(LUNCH_SPOT_FIELD, null);
+            data.put(Constants.LUNCH_SPOT_FIELD, null);
             drawable = R.drawable.ic_baseline_lunch_dining_24;
             color = R.color.red_primary;
             msg = getResources().getString(R.string.lunch_spot_remove);

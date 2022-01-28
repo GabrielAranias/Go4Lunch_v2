@@ -14,6 +14,7 @@ import com.gabriel.aranias.go4lunch_v2.databinding.ReceivedMessageItemBinding;
 import com.gabriel.aranias.go4lunch_v2.databinding.SentMessageItemBinding;
 import com.gabriel.aranias.go4lunch_v2.model.Message;
 import com.gabriel.aranias.go4lunch_v2.model.User;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 
 import java.util.List;
 
@@ -23,8 +24,6 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     private final User workmate;
     private final String senderId;
     private Context context;
-    public static final int VIEW_TYPE_SENT = 1;
-    public static final int VIEW_TYPE_RECEIVED = 2;
 
     public ChatAdapter(List<Message> messages, User workmate, String senderId, Context context) {
         this.messages = messages;
@@ -37,7 +36,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         context = parent.getContext();
-        if (viewType == VIEW_TYPE_SENT) {
+        if (viewType == Constants.VIEW_TYPE_SENT) {
             return new SentMessageViewHolder(SentMessageItemBinding.inflate(
                     LayoutInflater.from(parent.getContext()), parent, false));
         } else {
@@ -48,7 +47,7 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
     @Override
     public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int position) {
-        if (getItemViewType(position) == VIEW_TYPE_SENT) {
+        if (getItemViewType(position) == Constants.VIEW_TYPE_SENT) {
             ((SentMessageViewHolder) holder).setData(messages.get(position));
         } else {
             ((ReceivedMessageViewHolder) holder).setData(messages.get(position), workmate);
@@ -63,9 +62,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     @Override
     public int getItemViewType(int position) {
         if (messages.get(position).senderId.equals(senderId)) {
-            return VIEW_TYPE_SENT;
+            return Constants.VIEW_TYPE_SENT;
         } else {
-            return VIEW_TYPE_RECEIVED;
+            return Constants.VIEW_TYPE_RECEIVED;
         }
     }
 
@@ -88,9 +87,9 @@ public class ChatAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
 
         private final ReceivedMessageItemBinding binding;
 
-        public ReceivedMessageViewHolder(ReceivedMessageItemBinding receiverBinding) {
-            super(receiverBinding.getRoot());
-            binding = receiverBinding;
+        public ReceivedMessageViewHolder(ReceivedMessageItemBinding receivedBinding) {
+            super(receivedBinding.getRoot());
+            binding = receivedBinding;
         }
 
         public void setData(Message message, User workmate) {

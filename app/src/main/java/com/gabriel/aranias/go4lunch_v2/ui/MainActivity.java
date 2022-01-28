@@ -23,6 +23,7 @@ import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.ui.list.ListFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.map.MapFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.workmate.WorkmateFragment;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.PermissionUtils;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -32,7 +33,6 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private HeaderNavigationDrawerBinding headerBinding;
     private final UserHelper userHelper = UserHelper.getInstance();
     private boolean permissionDenied;
-    private static final int LOCATION_PERMISSION_REQUEST_CODE = 42;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -176,7 +176,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             initMapFragment();
         } else {
             // Permission to access location is missing; show rationale x request permission
-            PermissionUtils.requestPermission(this, LOCATION_PERMISSION_REQUEST_CODE,
+            PermissionUtils.requestPermission(this, Constants.LOCATION_PERMISSION_REQUEST_CODE,
                     Manifest.permission.ACCESS_FINE_LOCATION, true);
         }
     }
@@ -184,7 +184,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode != LOCATION_PERMISSION_REQUEST_CODE) {
+        if (requestCode != Constants.LOCATION_PERMISSION_REQUEST_CODE) {
             return;
         }
 

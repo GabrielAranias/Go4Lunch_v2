@@ -12,6 +12,7 @@ import com.gabriel.aranias.go4lunch_v2.databinding.ActivityChatBinding;
 import com.gabriel.aranias.go4lunch_v2.model.Message;
 import com.gabriel.aranias.go4lunch_v2.model.User;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
@@ -30,12 +31,6 @@ public class ChatActivity extends AppCompatActivity {
 
     private ActivityChatBinding binding;
     private final UserHelper userHelper = UserHelper.getInstance();
-    private final static String EXTRA_WORKMATE = "workmate";
-    private static final String MESSAGES_COLLECTION = "messages";
-    private static final String USER_ID = "uid";
-    private static final String RECEIVER_ID_FIELD = "receiverId";
-    private static final String CONTENT_FIELD = "content";
-    private static final String TIMESTAMP_FIELD = "timestamp";
     private User workmate;
     private List<Message> messages;
     private ChatAdapter adapter;
@@ -55,22 +50,22 @@ public class ChatActivity extends AppCompatActivity {
 
     private void sendMessage() {
         HashMap<String, Object> message = new HashMap<>();
-        message.put(USER_ID, userHelper.getCurrentUser().getUid());
-        message.put(RECEIVER_ID_FIELD, workmate.getUid());
-        message.put(CONTENT_FIELD, binding.chatMsgInput.getText().toString());
-        message.put(TIMESTAMP_FIELD, new Date());
-        db.collection(MESSAGES_COLLECTION).add(message);
+        message.put(Constants.USER_ID_FIELD, userHelper.getCurrentUser().getUid());
+        message.put(Constants.RECEIVER_ID_FIELD, workmate.getUid());
+        message.put(Constants.CONTENT_FIELD, binding.chatMsgInput.getText().toString());
+        message.put(Constants.TIMESTAMP_FIELD, new Date());
+        db.collection(Constants.MESSAGE_COLLECTION).add(message);
         binding.chatMsgInput.setText(null);
     }
 
     private void listenToMessages() {
-        db.collection(MESSAGES_COLLECTION)
-                .whereEqualTo(USER_ID, userHelper.getCurrentUser().getUid())
-                .whereEqualTo(RECEIVER_ID_FIELD, workmate.getUid())
+        db.collection(Constants.MESSAGE_COLLECTION)
+                .whereEqualTo(Constants.USER_ID_FIELD, userHelper.getCurrentUser().getUid())
+                .whereEqualTo(Constants.RECEIVER_ID_FIELD, workmate.getUid())
                 .addSnapshotListener(eventListener);
-        db.collection(MESSAGES_COLLECTION)
-                .whereEqualTo(USER_ID, workmate.getUid())
-                .whereEqualTo(RECEIVER_ID_FIELD, userHelper.getCurrentUser().getUid())
+        db.collection(Constants.MESSAGE_COLLECTION)
+                .whereEqualTo(Constants.USER_ID_FIELD, workmate.getUid())
+                .whereEqualTo(Constants.RECEIVER_ID_FIELD, userHelper.getCurrentUser().getUid())
                 .addSnapshotListener(eventListener);
     }
 
@@ -84,11 +79,16 @@ public class ChatActivity extends AppCompatActivity {
             for (DocumentChange documentChange : value.getDocumentChanges()) {
                 if (documentChange.getType() == DocumentChange.Type.ADDED) {
                     Message message = new Message();
-                    message.senderId = documentChange.getDocument().getString(USER_ID);
-                    message.receiverId = documentChange.getDocument().getString(RECEIVER_ID_FIELD);
-                    message.content = documentChange.getDocument().getString(CONTENT_FIELD);
-                    message.date = getReadableDate(documentChange.getDocument().getDate(TIMESTAMP_FIELD));
-                    message.dateObject = documentChange.getDocument().getDate(TIMESTAMP_FIELD);
+                    message.senderId = documentChange.getDocument()
+                            .getString(Constants.USER_ID_FIELD);
+                    message.receiverId = documentChange.getDocument()
+                            .getString(Constants.RECEIVER_ID_FIELD);
+                    message.content = documentChange.getDocument()
+                            .getString(Constants.CONTENT_FIELD);
+                    message.date = getReadableDate(documentChange.getDocument()
+                            .getDate(Constants.TIMESTAMP_FIELD));
+                    message.dateObject = documentChange.getDocument()
+                            .getDate(Constants.TIMESTAMP_FIELD);
                     messages.add(message);
                 }
             }
@@ -116,7 +116,7 @@ public class ChatActivity extends AppCompatActivity {
     private void loadReceiverDetails() {
         Intent intent = this.getIntent();
         if (intent.getExtras() != null) {
-            workmate = (User) intent.getSerializableExtra(EXTRA_WORKMATE);
+            workmate = (User) intent.getSerializableExtra(Constants.EXTRA_WORKMATE);
             binding.workmateName.setText(workmate.getUsername());
         }
     }

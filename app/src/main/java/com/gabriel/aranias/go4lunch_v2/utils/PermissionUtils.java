@@ -39,14 +39,12 @@ public abstract class PermissionUtils {
     public static class RationaleDialog extends DialogFragment {
 
         private boolean finishActivity = false;
-        private static final String ARGUMENT_PERMISSION_REQUEST_CODE = "requestCode";
-        private static final String ARGUMENT_FINISH_ACTIVITY = "finish";
 
         // Create new instance of dialog displaying rationale for use of location permission
         public static RationaleDialog newInstance(int requestCode, boolean finishActivity) {
             Bundle arguments = new Bundle();
-            arguments.putInt(ARGUMENT_PERMISSION_REQUEST_CODE, requestCode);
-            arguments.putBoolean(ARGUMENT_FINISH_ACTIVITY, finishActivity);
+            arguments.putInt(Constants.ARGUMENT_PERMISSION_REQUEST_CODE, requestCode);
+            arguments.putBoolean(Constants.ARGUMENT_FINISH_ACTIVITY, finishActivity);
             RationaleDialog dialog = new RationaleDialog();
             dialog.setArguments(arguments);
             return dialog;
@@ -57,8 +55,8 @@ public abstract class PermissionUtils {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             Bundle arguments = getArguments();
             final int requestCode = Objects.requireNonNull(arguments).
-                    getInt(ARGUMENT_PERMISSION_REQUEST_CODE);
-            finishActivity = arguments.getBoolean(ARGUMENT_FINISH_ACTIVITY);
+                    getInt(Constants.ARGUMENT_PERMISSION_REQUEST_CODE);
+            finishActivity = arguments.getBoolean(Constants.ARGUMENT_FINISH_ACTIVITY);
 
             return new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.location_permission_rationale)
@@ -103,7 +101,6 @@ public abstract class PermissionUtils {
     // Dialog displaying permission denied msg
     public static class PermissionDeniedDialog extends DialogFragment {
 
-        private static final String ARGUMENT_FINISH_ACTIVITY = "finish";
         private boolean finishActivity = false;
 
         /*
@@ -112,7 +109,7 @@ public abstract class PermissionUtils {
          */
         public static PermissionDeniedDialog newInstance(boolean finishActivity) {
             Bundle arguments = new Bundle();
-            arguments.putBoolean(ARGUMENT_FINISH_ACTIVITY, finishActivity);
+            arguments.putBoolean(Constants.ARGUMENT_FINISH_ACTIVITY, finishActivity);
 
             PermissionDeniedDialog dialog = new PermissionDeniedDialog();
             dialog.setArguments(arguments);
@@ -122,7 +119,7 @@ public abstract class PermissionUtils {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            finishActivity = requireArguments().getBoolean(ARGUMENT_FINISH_ACTIVITY);
+            finishActivity = requireArguments().getBoolean(Constants.ARGUMENT_FINISH_ACTIVITY);
 
             return new AlertDialog.Builder(getActivity())
                     .setMessage(R.string.location_permission_denied)

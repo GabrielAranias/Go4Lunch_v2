@@ -6,6 +6,7 @@ import androidx.annotation.Nullable;
 
 import com.firebase.ui.auth.AuthUI;
 import com.gabriel.aranias.go4lunch_v2.model.User;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -18,8 +19,6 @@ import java.util.Objects;
 public final class UserRepository {
 
     private static volatile UserRepository instance;
-    private static final String USER_COLLECTION = "users";
-    private static final String USERNAME_FIELD = "username";
 
     private UserRepository() {
     }
@@ -52,7 +51,7 @@ public final class UserRepository {
 
     // Get collection reference
     public CollectionReference getUserCollection() {
-        return FirebaseFirestore.getInstance().collection(USER_COLLECTION);
+        return FirebaseFirestore.getInstance().collection(Constants.USER_COLLECTION);
     }
 
     // Create user in Firestore
@@ -86,7 +85,7 @@ public final class UserRepository {
     public Task<Void> updateUsername(String username) {
         String uid = this.getCurrentUserId();
         if (uid != null) {
-            return this.getUserCollection().document(uid).update(USERNAME_FIELD, username);
+            return this.getUserCollection().document(uid).update(Constants.USERNAME_FIELD, username);
         } else {
             return null;
         }

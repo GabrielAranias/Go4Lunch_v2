@@ -19,7 +19,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
-import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentListBinding;
 import com.gabriel.aranias.go4lunch_v2.model.CustomPlace;
@@ -28,6 +27,7 @@ import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbySearchResponse;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitApi;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitClient;
 import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.gabriel.aranias.go4lunch_v2.utils.PlaceUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -48,7 +48,6 @@ import retrofit2.Response;
 public class ListFragment extends Fragment implements OnItemClickListener<NearbyPlaceModel> {
 
     private FragmentListBinding binding;
-    private static final String API_KEY = BuildConfig.MAPS_API_KEY;
     private LocationRequest locationRequest;
     private FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
@@ -57,7 +56,6 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
     private RetrofitApi retrofitApi;
     private List<NearbyPlaceModel> nearbyPlaceModelList;
     private int radius = 5000;
-    private static final String EXTRA_RESTAURANT = "restaurant";
     private CustomPlace selectedPlace;
 
     public ListFragment() {
@@ -179,7 +177,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
                 == PackageManager.PERMISSION_GRANTED) {
             String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                     + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
-                    + "&radius=" + radius + "&type=" + placeName + "&key=" + API_KEY;
+                    + "&radius=" + radius + "&type=" + placeName + "&key=" + Constants.API_KEY;
 
             if (currentLocation != null) {
                 retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
@@ -224,7 +222,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
     @Override
     public void onItemClicked(NearbyPlaceModel restaurant) {
         Intent intent = new Intent(requireActivity(), DetailActivity.class);
-        intent.putExtra(EXTRA_RESTAURANT, restaurant);
+        intent.putExtra(Constants.EXTRA_RESTAURANT, restaurant);
         startActivity(intent);
     }
 

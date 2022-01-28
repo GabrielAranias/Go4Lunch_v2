@@ -22,7 +22,6 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
-import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentMapBinding;
 import com.gabriel.aranias.go4lunch_v2.model.CustomPlace;
@@ -31,6 +30,7 @@ import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbySearchResponse;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitApi;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitClient;
 import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.LoadingDialog;
 import com.gabriel.aranias.go4lunch_v2.utils.PlaceUtils;
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -63,7 +63,6 @@ import retrofit2.Response;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private FragmentMapBinding binding;
-    private static final String API_KEY = BuildConfig.MAPS_API_KEY;
     private GoogleMap map;
     private LocationRequest locationRequest;
     private LocationCallback locationCallback;
@@ -75,7 +74,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private RetrofitApi retrofitApi;
     private List<NearbyPlaceModel> nearbyPlaceModelList;
     private int radius = 5000;
-    private static final String EXTRA_RESTAURANT = "restaurant";
     private CustomPlace selectedPlace;
 
     public MapFragment() {
@@ -170,7 +168,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void getRestaurantDetails(NearbyPlaceModel restaurant) {
         Intent intent = new Intent(requireActivity(), DetailActivity.class);
-        intent.putExtra(EXTRA_RESTAURANT, restaurant);
+        intent.putExtra(Constants.EXTRA_RESTAURANT, restaurant);
         startActivity(intent);
     }
 
@@ -251,7 +249,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             loadingDialog.startLoading();
             String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                     + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
-                    + "&radius=" + radius + "&type=" + placeName + "&key=" + API_KEY;
+                    + "&radius=" + radius + "&type=" + placeName + "&key=" + Constants.API_KEY;
 
             if (currentLocation != null) {
                 retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {

@@ -54,11 +54,11 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
 
         private final RestaurantItemBinding binding;
 
-        public ViewHolder(@NonNull RestaurantItemBinding binding) {
-            super(binding.getRoot());
-            this.binding = binding;
+        public ViewHolder(@NonNull RestaurantItemBinding itemBinding) {
+            super(itemBinding.getRoot());
+            binding = itemBinding;
 
-            this.binding.restaurantItem.setOnClickListener(v ->
+            binding.restaurantItem.setOnClickListener(v ->
                     listener.onItemClicked(restaurants.get(getAdapterPosition())));
         }
 
