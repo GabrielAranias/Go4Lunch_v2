@@ -1,4 +1,4 @@
-package com.gabriel.aranias.go4lunch_v2.ui.workmate;
+package com.gabriel.aranias.go4lunch_v2.ui.detail;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,8 +7,6 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.WorkmateItemBinding;
 import com.gabriel.aranias.go4lunch_v2.model.User;
@@ -16,14 +14,14 @@ import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 
 import java.util.ArrayList;
 
-public class WorkmateAdapter extends RecyclerView.Adapter<WorkmateAdapter.ViewHolder> {
+public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder> {
 
     private final ArrayList<User> workmates;
     private Context context;
     private final OnItemClickListener<User> listener;
 
-    public WorkmateAdapter(Context context, ArrayList<User> workmates,
-                           OnItemClickListener<User> listener) {
+    public DetailAdapter(Context context, ArrayList<User> workmates,
+                         OnItemClickListener<User> listener) {
         this.context = context;
         this.workmates = workmates;
         this.listener = listener;
@@ -55,37 +53,18 @@ public class WorkmateAdapter extends RecyclerView.Adapter<WorkmateAdapter.ViewHo
 
         public ViewHolder(@NonNull WorkmateItemBinding itemBinding) {
             super(itemBinding.getRoot());
-            binding = itemBinding;
+            this.binding = itemBinding;
 
-            binding.workmateItem.setOnClickListener(v ->
+            this.binding.workmateItem.setOnClickListener(v ->
                     listener.onItemClicked(workmates.get(getAdapterPosition())));
         }
 
-        // Display workmate list w/ info
+        // Display workmate list
         public void bindView(User workmate) {
-            // Photo
-            getPhoto(workmate);
-            // Text
-            getLunchSpotText(workmate);
-        }
-
-        private void getPhoto(User workmate) {
-            if (workmate.getPictureUrl() != null) {
-                Glide.with(context)
-                        .load(workmate.getPictureUrl())
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(binding.itemWorkmateAvatar);
-            } else {
-                Glide.with(context)
-                        .load(R.drawable.default_user_avatar)
-                        .apply(RequestOptions.circleCropTransform())
-                        .into(binding.itemWorkmateAvatar);
-            }
-        }
-
-        private void getLunchSpotText(User workmate) {
-            binding.itemWorkmateLunchSpot.setText(context.getString(
-                    R.string.not_decided, workmate.getUsername()));
+                binding.itemWorkmateLunchSpot.setText(context.getString(
+                        R.string.joining, workmate.getUsername()));
+                binding.itemWorkmateLunchSpot.setTextColor(context.getResources()
+                        .getColor(R.color.black));
         }
     }
 }

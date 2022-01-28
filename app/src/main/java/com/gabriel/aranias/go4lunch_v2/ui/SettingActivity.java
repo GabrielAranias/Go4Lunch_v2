@@ -19,6 +19,7 @@ public class SettingActivity extends AppCompatActivity {
 
     private ActivitySettingBinding binding;
     private final UserHelper userHelper = UserHelper.getInstance();
+    private static boolean updatedName = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +69,7 @@ public class SettingActivity extends AppCompatActivity {
             userHelper.updateUsername(Objects.requireNonNull(
                     binding.settingUpdateEditText.getText()).toString())
                     .addOnSuccessListener(aVoid -> {
+                        updatedName = true;
                         Toast.makeText(this, R.string.update_done, Toast.LENGTH_SHORT).show();
                         binding.settingUpdateLayout.setVisibility(View.GONE);
                     });
@@ -77,5 +79,9 @@ public class SettingActivity extends AppCompatActivity {
     private void startLoginActivity() {
         startActivity(new Intent(this, LoginActivity.class));
         finish();
+    }
+
+    public static Boolean nameIsUpdated() {
+        return updatedName;
     }
 }

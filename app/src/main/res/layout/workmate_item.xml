@@ -26,7 +26,7 @@
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
         android:textColor="@color/black"
-        android:textSize="16sp"
+        android:textSize="14sp"
         app:layout_constraintStart_toEndOf="@+id/item_workmate_avatar"
         app:layout_constraintTop_toTopOf="parent"
         tools:text="Scarlett is eating at Le Zinc" />

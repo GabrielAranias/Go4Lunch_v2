@@ -141,8 +141,10 @@
                 android:id="@+id/detail_workmate_rv"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:visibility="gone"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/workmate_item" />
+                tools:listitem="@layout/workmate_item"
+                tools:visibility="visible" />
 
             <TextView
                 android:id="@+id/detail_no_workmate_tv"

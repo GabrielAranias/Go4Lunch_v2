@@ -133,6 +133,10 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             setDefaultProfilePicture();
         }
         setUserTextInfo(user);
+        // Update username if changed via settings
+        if (SettingActivity.nameIsUpdated()) {
+            updateName();
+        }
     }
 
     private void setProfilePicture(Uri photoUrl) {
@@ -159,6 +163,14 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         headerBinding.headerUserEmail.setText(email);
     }
 
+    private void updateName() {
+        userHelper.getUserData().addOnSuccessListener(user -> {
+            String updatedName = user.getUsername();
+            headerBinding.headerUserName.setText(updatedName);
+        });
+    }
+
+    // If user has chosen a restaurant, display its details on click
     private void getLunchDetails() {
     }
 
@@ -182,13 +194,15 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode != Constants.LOCATION_PERMISSION_REQUEST_CODE) {
             return;
         }
 
-        if (PermissionUtils.isPermissionGranted(permissions, grantResults, Manifest.permission.ACCESS_FINE_LOCATION)) {
+        if (PermissionUtils.isPermissionGranted(permissions, grantResults,
+                Manifest.permission.ACCESS_FINE_LOCATION)) {
             // Enable location layer if permission has been granted
             enableDeviceLocation();
         } else {

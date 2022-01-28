@@ -22,7 +22,6 @@ import com.gabriel.aranias.go4lunch_v2.ui.chat.ChatActivity;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.google.firebase.firestore.DocumentChange;
-import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.Query;
 
 import java.util.ArrayList;
@@ -34,7 +33,6 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
     private FragmentWorkmateBinding binding;
     private WorkmateAdapter adapter;
     private ArrayList<User> workmates;
-    private FirebaseFirestore db;
     private ProgressDialog progressDialog;
 
     public WorkmateFragment() {
@@ -71,7 +69,6 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
                 binding.workmateRv.getContext(), manager.getOrientation());
         binding.workmateRv.addItemDecoration(itemDecoration);
 
-        db = FirebaseFirestore.getInstance();
         workmates = new ArrayList<>();
 
         adapter = new WorkmateAdapter(requireActivity(), workmates, this);
@@ -80,7 +77,7 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
 
     @SuppressLint("NotifyDataSetChanged")
     private void EventChangeListener() {
-        db.collection(Constants.USER_COLLECTION)
+        userHelper.getUserCollection()
                 .orderBy(Constants.USERNAME_FIELD, Query.Direction.ASCENDING)
                 .addSnapshotListener((value, error) -> {
                     if (error != null) {

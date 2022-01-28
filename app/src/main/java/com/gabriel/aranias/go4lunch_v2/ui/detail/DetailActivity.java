@@ -10,9 +10,12 @@ import androidx.core.content.ContextCompat;
 
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityDetailBinding;
+import com.gabriel.aranias.go4lunch_v2.model.User;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.ui.chat.ChatActivity;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
+import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.google.android.gms.common.api.ApiException;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
@@ -30,7 +33,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements OnItemClickListener<User> {
 
     private ActivityDetailBinding binding;
     private PlacesClient placesClient;
@@ -291,5 +294,12 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     private void getJoiningWorkmates() {
+    }
+
+    @Override
+    public void onItemClicked(User workmate) {
+        Intent intent = new Intent(this, ChatActivity.class);
+        intent.putExtra(Constants.EXTRA_WORKMATE, workmate);
+        startActivity(intent);
     }
 }
