@@ -7,9 +7,9 @@
     <string name="lunch_spot_fab" translatable="false">Fab to choose a lunch spot</string>
     <string name="location_fab" translatable="false">Fab to set map camera on user location</string>
 
-    <string name="bnm_map_view">Map View</string>
-    <string name="bnm_list_view">List View</string>
-    <string name="bnm_workmates">Workmates</string>
+    <string name="bnm_map_view" translatable="false">Map View</string>
+    <string name="bnm_list_view" translatable="false">List View</string>
+    <string name="bnm_workmates" translatable="false">Workmates</string>
 
     <string name="nav_hungry">I\'m Hungry!</string>
     <string name="nav_workmates">Available Workmates</string>
@@ -21,10 +21,10 @@
     <string name="nd_settings">SETTINGS</string>
     <string name="nd_logout">LOGOUT</string>
 
-    <string name="detail_call">CALL</string>
-    <string name="detail_like">LIKE</string>
-    <string name="detail_unlike">UNLIKE</string>
-    <string name="detail_website">WEBSITE</string>
+    <string name="detail_call" translatable="false">CALL</string>
+    <string name="detail_like" translatable="false">LIKE</string>
+    <string name="detail_unlike" translatable="false">UNLIKE</string>
+    <string name="detail_website" translatable="false">WEBSITE</string>
 
     <string name="no_user_email">No email address found</string>
     <string name="no_username">No username found</string>
@@ -47,7 +47,7 @@
 
     <string name="select_place">Select a type of place</string>
 
-    <string name="distance">%1$d m</string>
+    <string name="distance" translatable="false">%1$d m</string>
     <string name="closed">Closed</string>
     <string name="open">Open now</string>
 

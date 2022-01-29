@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Go4Lunch</string>
+    <string name="nav_hungry">J\'ai faim!</string>
+    <string name="nav_workmates">Collègues Disponibles</string>
+    <string name="label_detail">Détails du lieu</string>
+    <string name="label_settings">Paramètres</string>
+    <string name="nd_your_lunch">VOTRE DEJEUNER</string>
+    <string name="nd_settings">PARAMETRES</string>
+    <string name="nd_logout">DECONNEXION</string>
+    <string name="no_user_email">Aucune adresse email trouvée</string>
+    <string name="no_username">Aucun nom d\'utilisateur trouvé</string>
+    <string name="no_joining_workmate">Aucun collègue ne déjeune dans cet endroit</string>
+    <string name="no_opening_hours">Heures d\'ouverture non disponibles</string>
+    <string name="no_phone_number">Aucun numéro de téléphone trouvé pour cet endroit</string>
+    <string name="no_website">Aucun site web trouvé pour cet endroit</string>
+    <string name="update_name">Mettre à jour votre nom d\'utilisateur</string>
+    <string name="update_hint">Nouveau nom d\'utilisateur</string>
+    <string name="update_done">Votre nom d\'utilisateur a été mis à jour</string>
+    <string name="new_name_needed">Veuillez renseigner votre nouveau nom d\'utilisateur</string>
+    <string name="delete_account">Supprimer votre compte</string>
+    <string name="delete_account_popup">Etes-vous sûr(e) de vouloir supprimer votre compte ?</string>
+    <string name="location_permission_required">L\'autorisation de localisation est requise pour cette application</string>
+    <string name="location_permission_rationale">L\'accès à la localisation est requis pour cette application, qui affiche les restaurants autour de vous</string>
+    <string name="location_permission_denied">Cette application nécessite l\'autorisation de localisation pour fonctionner efficacement. Veuillz réessayer et autoriser l\'accès à la localisation. Si l\'autorisation a été refusée de façon permanente, vous pouvez modifier cela depuis les Paramètres Système</string>
+    <string name="location_update">Localisation mise à jour</string>
+    <string name="select_place">Sélectionnez un type d\'endroit</string>
+    <string name="closed">Fermé</string>
+    <string name="open">Actuellement ouvert</string>
+    <string name="not_selected">Vous n\'avez pas encore sélectionné d\'endroit pour déjeuner</string>
+    <string name="not_decided">%1$s n\'a pas encore décidé</string>
+    <string name="decided">%1$s déjeune ici : %2$s</string>
+    <string name="joining">%1$s se joint à la fête !</string>
+    <string name="fetching_data">Récupération des données…</string>
+    <string name="fav_add">Cet endroit a été ajouté à vos Favoris</string>
+    <string name="fav_remove">Cet endroit a été retiré de vos Favoris</string>
+    <string name="lunch_spot_add">Vous déjeunez ici</string>
+    <string name="lunch_spot_remove">Vous ne déjeunez plus ici</string>
+    <string name="msg_input">Ecrivez votre message</string>
+</resources>
