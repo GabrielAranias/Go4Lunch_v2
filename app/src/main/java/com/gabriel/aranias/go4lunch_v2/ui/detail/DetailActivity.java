@@ -24,13 +24,10 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.SetOptions;
 import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 public class DetailActivity extends AppCompatActivity implements OnItemClickListener<User> {
@@ -236,7 +233,7 @@ public class DetailActivity extends AppCompatActivity implements OnItemClickList
             userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
                     .addOnCompleteListener(task -> {
                         if (task.getResult() != null) {
-                            String result = task.getResult().getString(Constants.LUNCH_SPOT_FIELD);
+                            String result = task.getResult().getString(Constants.LUNCH_SPOT_ID_FIELD);
                             if (result != null) {
                                 if (result.equals(restaurant.getPlaceId())) {
                                     binding.detailLunchSpotFab.setImageDrawable(ContextCompat.getDrawable(
@@ -257,7 +254,7 @@ public class DetailActivity extends AppCompatActivity implements OnItemClickList
                 userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
                         .addOnCompleteListener(task -> {
                             if (task.getResult() != null) {
-                                String result = task.getResult().getString(Constants.LUNCH_SPOT_FIELD);
+                                String result = task.getResult().getString(Constants.LUNCH_SPOT_ID_FIELD);
                                 isLunchSpot(result == null ||
                                         !result.equals(restaurant.getPlaceId()), restaurant);
                             }
@@ -269,28 +266,25 @@ public class DetailActivity extends AppCompatActivity implements OnItemClickList
         int color;
         String msg;
         // Update in Firestore
-        Map<String, Object> data = new HashMap<>();
         if (b) {
-            data.put(Constants.LUNCH_SPOT_FIELD, restaurant.getPlaceId());
+            userHelper.updateLunchSpotId(restaurant.getPlaceId());
+            userHelper.updateLunchSpotName(restaurant.getName());
             drawable = R.drawable.ic_baseline_check_circle_24;
             color = R.color.green;
             msg = getResources().getString(R.string.lunch_spot_add);
         } else {
-            data.put(Constants.LUNCH_SPOT_FIELD, null);
+            userHelper.updateLunchSpotId(null);
+            userHelper.updateLunchSpotName(null);
             drawable = R.drawable.ic_baseline_lunch_dining_24;
             color = R.color.red_primary;
             msg = getResources().getString(R.string.lunch_spot_remove);
         }
-        if (userHelper.getCurrentUser() != null) {
-            userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid())
-                    .set(data, SetOptions.merge()).addOnSuccessListener(aVoid -> {
-                binding.detailLunchSpotFab.setImageDrawable(ContextCompat.getDrawable(
-                        getApplicationContext(), drawable));
-                binding.detailLunchSpotFab.getDrawable().setTint(getResources().getColor(color));
-                Snackbar.make(binding.getRoot(), msg, Snackbar.LENGTH_SHORT).show();
-            }).addOnFailureListener(e ->
-                    Log.e("TAG", "Firestore failure " + e));
-        }
+        userHelper.getUserData().addOnSuccessListener(user -> {
+            binding.detailLunchSpotFab.setImageDrawable(ContextCompat.getDrawable(
+                    getApplicationContext(), drawable));
+            binding.detailLunchSpotFab.getDrawable().setTint(getResources().getColor(color));
+            Snackbar.make(binding.getRoot(), msg, Snackbar.LENGTH_SHORT).show();
+        });
     }
 
     private void getJoiningWorkmates() {

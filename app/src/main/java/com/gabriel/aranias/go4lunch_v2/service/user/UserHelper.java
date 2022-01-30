@@ -39,11 +39,11 @@ public class UserHelper {
         return (this.getCurrentUser() != null);
     }
 
-    public Task<Void> signOut(Context context){
+    public Task<Void> signOut(Context context) {
         return userRepository.signOut(context);
     }
 
-    public Task<Void> deleteUser(Context context){
+    public Task<Void> deleteUser(Context context) {
         // Delete user account from auth
         return userRepository.deleteUser(context).addOnCompleteListener(task -> {
             // Once done, delete user data from Firestore
@@ -58,14 +58,22 @@ public class UserHelper {
     public Task<User> getUserData() {
         // Get user from Firestore and cast it to a User object
         return Objects.requireNonNull(userRepository.getUserData()).continueWith(task ->
-                Objects.requireNonNull(task.getResult()).toObject(User.class)) ;
+                Objects.requireNonNull(task.getResult()).toObject(User.class));
     }
 
-    public Task<Void> updateUsername(String username){
+    public Task<Void> updateUsername(String username) {
         return userRepository.updateUsername(username);
     }
 
     public CollectionReference getUserCollection() {
         return userRepository.getUserCollection();
+    }
+
+    public void updateLunchSpotId(String lunchSpotId) {
+        userRepository.updateLunchSpotId(lunchSpotId);
+    }
+
+    public void updateLunchSpotName(String lunchSpotName) {
+        userRepository.updateLunchSpotName(lunchSpotName);
     }
 }

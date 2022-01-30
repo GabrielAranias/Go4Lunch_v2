@@ -16,8 +16,9 @@ public class Constants {
     public static final String USERNAME_FIELD = "username";
     public static final String CONTENT_FIELD = "content";
     public static final String TIMESTAMP_FIELD = "timestamp";
-    public static final String FAV_FIELD = "favorite restaurants";
-    public static final String LUNCH_SPOT_FIELD = "lunch spot";
+    public static final String FAV_FIELD = "favorite_restaurants";
+    public static final String LUNCH_SPOT_ID_FIELD = "lunch_spot_id";
+    public static final String LUNCH_SPOT_NAME_FIELD = "lunch_spot_name";
 
     public static final String ARGUMENT_PERMISSION_REQUEST_CODE = "requestCode";
     public static final String ARGUMENT_FINISH_ACTIVITY = "finish";

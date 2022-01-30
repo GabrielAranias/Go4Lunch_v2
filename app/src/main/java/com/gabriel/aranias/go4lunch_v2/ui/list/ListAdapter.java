@@ -141,7 +141,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
             userHelper.getUserCollection().get().addOnCompleteListener(task -> {
                 if (task.getResult() != null) {
                     for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                        String placeId = documentSnapshot.getString(Constants.LUNCH_SPOT_FIELD);
+                        String placeId = documentSnapshot.getString(Constants.LUNCH_SPOT_ID_FIELD);
                         if (placeId != null) {
                             if (placeId.equals(restaurant.getPlaceId())) {
                                 workmateNumber[0]++;

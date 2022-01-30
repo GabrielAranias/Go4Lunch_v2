@@ -62,12 +62,21 @@ public final class UserRepository {
             String username = user.getDisplayName();
             String uid = user.getUid();
 
-            User userToCreate = new User(uid, username, pictureUrl);
+            User userToCreate = new User(uid, username, pictureUrl, null, null);
 
             Task<DocumentSnapshot> userData = getUserData();
             // If user already exists in Firestore, get their data
-            Objects.requireNonNull(userData).addOnSuccessListener(documentSnapshot ->
-                    this.getUserCollection().document(uid).set(userToCreate));
+            Objects.requireNonNull(userData).addOnSuccessListener(documentSnapshot -> {
+                if (documentSnapshot.contains(Constants.LUNCH_SPOT_ID_FIELD)) {
+                    userToCreate.setLunchSpotId((String) documentSnapshot
+                            .get(Constants.LUNCH_SPOT_ID_FIELD));
+                }
+                if (documentSnapshot.contains(Constants.LUNCH_SPOT_NAME_FIELD)) {
+                    userToCreate.setLunchSpotName((String) documentSnapshot
+                            .get(Constants.LUNCH_SPOT_NAME_FIELD));
+                }
+                this.getUserCollection().document(uid).set(userToCreate);
+            });
         }
     }
 
@@ -102,5 +111,25 @@ public final class UserRepository {
     private String getCurrentUserId() {
         FirebaseUser user = getCurrentUser();
         return (user != null) ? user.getUid() : null;
+    }
+
+    public Task<Void> updateLunchSpotId(String lunchSpotId) {
+        String uid = this.getCurrentUserId();
+        if (uid != null) {
+            return this.getUserCollection().document(uid)
+                    .update(Constants.LUNCH_SPOT_ID_FIELD, lunchSpotId);
+        } else {
+            return null;
+        }
+    }
+
+    public Task<Void> updateLunchSpotName(String lunchSpotName) {
+        String uid = this.getCurrentUserId();
+        if (uid != null) {
+            return this.getUserCollection().document(uid)
+                    .update(Constants.LUNCH_SPOT_NAME_FIELD, lunchSpotName);
+        } else {
+            return null;
+        }
     }
 }

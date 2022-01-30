@@ -11,14 +11,21 @@ public class User implements Serializable {
     private String username;
     @Nullable
     private String pictureUrl;
+    @Nullable
+    private String lunchSpotId;
+    @Nullable
+    private String lunchSpotName;
 
     public User() {
     }
 
-    public User(String uid, String username, @Nullable String pictureUrl) {
+    public User(String uid, String username, @Nullable String pictureUrl,
+                @Nullable String lunchSpotId, @Nullable String lunchSpotName) {
         this.uid = uid;
         this.username = username;
         this.pictureUrl = pictureUrl;
+        this.lunchSpotId = lunchSpotId;
+        this.lunchSpotName = lunchSpotName;
     }
 
     public String getUid() {
@@ -46,6 +53,24 @@ public class User implements Serializable {
         this.pictureUrl = pictureUrl;
     }
 
+    @Nullable
+    public String getLunchSpotId() {
+        return lunchSpotId;
+    }
+
+    public void setLunchSpotId(@Nullable String lunchSpotId) {
+        this.lunchSpotId = lunchSpotId;
+    }
+
+    @Nullable
+    public String getLunchSpotName() {
+        return lunchSpotName;
+    }
+
+    public void setLunchSpotName(@Nullable String lunchSpotName) {
+        this.lunchSpotName = lunchSpotName;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -53,11 +78,13 @@ public class User implements Serializable {
         User user = (User) o;
         return Objects.equals(uid, user.uid) &&
                 Objects.equals(username, user.username) &&
-                Objects.equals(pictureUrl, user.pictureUrl);
+                Objects.equals(pictureUrl, user.pictureUrl) &&
+                Objects.equals(lunchSpotId, user.lunchSpotId) &&
+                Objects.equals(lunchSpotName, user.lunchSpotName);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uid, username, pictureUrl);
+        return Objects.hash(uid, username, pictureUrl, lunchSpotId, lunchSpotName);
     }
 }
