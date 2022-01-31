@@ -56,7 +56,7 @@ public class UserHelper {
     }
 
     public Task<User> getUserData() {
-        // Get user from Firestore and cast it to a User object
+        // Get user from Firestore x cast it to User object
         return Objects.requireNonNull(userRepository.getUserData()).continueWith(task ->
                 Objects.requireNonNull(task.getResult()).toObject(User.class));
     }

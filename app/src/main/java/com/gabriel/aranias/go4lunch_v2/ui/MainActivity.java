@@ -20,6 +20,7 @@ import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityMainBinding;
 import com.gabriel.aranias.go4lunch_v2.databinding.HeaderNavigationDrawerBinding;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.ui.chat.ChatListFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.list.ListFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.map.MapFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.workmate.WorkmateFragment;
@@ -79,6 +80,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             final int mapId = R.id.nav_map;
             final int listId = R.id.nav_list;
             final int workmateId = R.id.nav_workmates;
+            final int chatId = R.id.nav_chat;
             switch (item.getItemId()) {
                 case mapId:
                     initMapFragment();
@@ -91,6 +93,11 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
                 case workmateId:
                     binding.mainToolbar.setTitle(R.string.nav_workmates);
                     fragment = new WorkmateFragment();
+                    showFragment(fragment);
+                    break;
+                case chatId:
+                    binding.mainToolbar.setTitle(R.string.nav_chat);
+                    fragment = new ChatListFragment();
                     showFragment(fragment);
                     break;
             }

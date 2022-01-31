@@ -1,7 +1,8 @@
-package com.gabriel.aranias.go4lunch_v2.ui.workmate;
+package com.gabriel.aranias.go4lunch_v2.ui.chat;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -25,15 +26,14 @@ import com.google.firebase.firestore.Query;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class WorkmateFragment extends Fragment implements OnItemClickListener<User> {
-
+public class ChatListFragment extends Fragment implements OnItemClickListener<User> {
     private final UserHelper userHelper = UserHelper.getInstance();
     private FragmentWorkmateBinding binding;
-    private WorkmateAdapter adapter;
+    private ChatListAdapter adapter;
     private ArrayList<User> workmates;
     private ProgressDialog progressDialog;
 
-    public WorkmateFragment() {
+    public ChatListFragment() {
     }
 
     @Override
@@ -69,7 +69,7 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
 
         workmates = new ArrayList<>();
 
-        adapter = new WorkmateAdapter(requireActivity(), workmates, this);
+        adapter = new ChatListAdapter(requireActivity(), workmates, this);
         binding.workmateRv.setAdapter(adapter);
     }
 
@@ -108,6 +108,9 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
 
     @Override
     public void onItemClicked(User workmate) {
+        Intent intent = new Intent(requireActivity(), ChatActivity.class);
+        intent.putExtra(Constants.EXTRA_WORKMATE, workmate);
+        startActivity(intent);
     }
 
     @Override

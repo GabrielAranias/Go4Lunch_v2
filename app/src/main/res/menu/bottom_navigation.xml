@@ -16,5 +16,10 @@
         android:enabled="true"
         android:icon="@drawable/ic_baseline_people_24"
         android:title="@string/bnm_workmates" />
+    <item
+        android:id="@+id/nav_chat"
+        android:enabled="true"
+        android:icon="@drawable/ic_baseline_chat_24"
+        android:title="@string/bnm_chat" />
 
 </menu>

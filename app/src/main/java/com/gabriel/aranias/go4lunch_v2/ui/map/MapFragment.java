@@ -94,35 +94,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         retrofitApi = RetrofitClient.getRetrofitApi();
         nearbyPlaceModelList = new ArrayList<>();
 
-        binding.mapLocationFab.setOnClickListener(currentLocation -> getCurrentLocation());
-
-        setChipListener();
-
-        return binding.getRoot();
-    }
-
-    private void setChipListener() {
-        binding.mapPlaceGroup.setOnCheckedChangeListener((group, checkedId) -> {
-
-            if (checkedId != -1) {
-                CustomPlace place = PlaceUtils.placeTypes.get(checkedId - 1);
-                binding.mapPlaceType.setText(place.getName());
-                selectedPlace = place;
-                getPlaces(place.getPlaceType());
-            }
-        });
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-
         // Build map
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         Objects.requireNonNull(mapFragment).getMapAsync(this);
 
+        return binding.getRoot();
+    }
+
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        binding.mapLocationFab.setOnClickListener(currentLocation -> getCurrentLocation());
+
         initChipGroup();
+        setChipListener();
     }
 
     private void initChipGroup() {
@@ -139,6 +127,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             binding.mapPlaceGroup.addView(chip);
         }
+    }
+
+    private void setChipListener() {
+        binding.mapPlaceGroup.setOnCheckedChangeListener((group, checkedId) -> {
+
+            if (checkedId != -1) {
+                CustomPlace place = PlaceUtils.placeTypes.get(checkedId - 1);
+                binding.mapPlaceType.setText(place.getName());
+                selectedPlace = place;
+                getPlaces(place.getPlaceType());
+            }
+        });
     }
 
     @Override

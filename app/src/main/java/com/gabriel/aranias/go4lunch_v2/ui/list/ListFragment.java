@@ -74,23 +74,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
         retrofitApi = RetrofitClient.getRetrofitApi();
         nearbyPlaceModelList = new ArrayList<>();
 
-        binding.listLocationFab.setOnClickListener(currentLocation -> getCurrentLocation());
-
-        setChipListener();
-
         return binding.getRoot();
-    }
-
-    private void setChipListener() {
-        binding.listPlaceGroup.setOnCheckedChangeListener((group, checkedId) -> {
-
-            if (checkedId != -1) {
-                CustomPlace place = PlaceUtils.placeTypes.get(checkedId - 1);
-                binding.listPlaceType.setText(place.getName());
-                selectedPlace = place;
-                getPlaces(place.getPlaceType());
-            }
-        });
     }
 
     @Override
@@ -101,8 +85,11 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
         adapter = new ListAdapter();
         binding.listRv.setAdapter(adapter);
 
+        binding.listLocationFab.setOnClickListener(currentLocation -> getCurrentLocation());
+
         setUpLocationUpdate();
         initChipGroup();
+        setChipListener();
     }
 
     private void initChipGroup() {
@@ -119,6 +106,18 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
 
             binding.listPlaceGroup.addView(chip);
         }
+    }
+
+    private void setChipListener() {
+        binding.listPlaceGroup.setOnCheckedChangeListener((group, checkedId) -> {
+
+            if (checkedId != -1) {
+                CustomPlace place = PlaceUtils.placeTypes.get(checkedId - 1);
+                binding.listPlaceType.setText(place.getName());
+                selectedPlace = place;
+                getPlaces(place.getPlaceType());
+            }
+        });
     }
 
     private void setUpLocationUpdate() {

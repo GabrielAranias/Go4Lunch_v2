@@ -3,6 +3,7 @@
     <string name="app_name">Go4Lunch</string>
     <string name="nav_hungry">J\'ai faim!</string>
     <string name="nav_workmates">Collègues Disponibles</string>
+    <string name="nav_chat">Discutez avec vos collègues</string>
     <string name="label_detail">Détails du lieu</string>
     <string name="label_settings">Paramètres</string>
     <string name="nd_your_lunch">VOTRE DEJEUNER</string>

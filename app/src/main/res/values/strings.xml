@@ -10,9 +10,11 @@
     <string name="bnm_map_view" translatable="false">Map View</string>
     <string name="bnm_list_view" translatable="false">List View</string>
     <string name="bnm_workmates" translatable="false">Workmates</string>
+    <string name="bnm_chat" translatable="false">Chat</string>
 
     <string name="nav_hungry">I\'m Hungry!</string>
     <string name="nav_workmates">Available Workmates</string>
+    <string name="nav_chat">Chat with your workmates</string>
 
     <string name="label_detail">Place Details</string>
     <string name="label_settings">Settings</string>

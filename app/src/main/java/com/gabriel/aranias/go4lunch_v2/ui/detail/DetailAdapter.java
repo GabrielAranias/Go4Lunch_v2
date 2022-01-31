@@ -10,7 +10,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.WorkmateItemBinding;
 import com.gabriel.aranias.go4lunch_v2.model.User;
-import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 
 import java.util.ArrayList;
 
@@ -18,13 +17,10 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
 
     private final ArrayList<User> workmates;
     private Context context;
-    private final OnItemClickListener<User> listener;
 
-    public DetailAdapter(Context context, ArrayList<User> workmates,
-                         OnItemClickListener<User> listener) {
+    public DetailAdapter(Context context, ArrayList<User> workmates) {
         this.context = context;
         this.workmates = workmates;
-        this.listener = listener;
     }
 
     @NonNull
@@ -54,17 +50,14 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
         public ViewHolder(@NonNull WorkmateItemBinding itemBinding) {
             super(itemBinding.getRoot());
             this.binding = itemBinding;
-
-            this.binding.workmateItem.setOnClickListener(v ->
-                    listener.onItemClicked(workmates.get(getAdapterPosition())));
         }
 
         // Display workmate list
         public void bindView(User workmate) {
-                binding.itemWorkmateLunchSpot.setText(context.getString(
-                        R.string.joining, workmate.getUsername()));
-                binding.itemWorkmateLunchSpot.setTextColor(context.getResources()
-                        .getColor(R.color.black));
+            binding.itemWorkmateLunchSpot.setText(context.getString(
+                    R.string.joining, workmate.getUsername()));
+            binding.itemWorkmateLunchSpot.setTextColor(context.getResources()
+                    .getColor(R.color.black));
         }
     }
 }

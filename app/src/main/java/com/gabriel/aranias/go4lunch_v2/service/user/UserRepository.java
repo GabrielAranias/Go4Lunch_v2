@@ -113,23 +113,19 @@ public final class UserRepository {
         return (user != null) ? user.getUid() : null;
     }
 
-    public Task<Void> updateLunchSpotId(String lunchSpotId) {
+    public void updateLunchSpotId(String lunchSpotId) {
         String uid = this.getCurrentUserId();
         if (uid != null) {
-            return this.getUserCollection().document(uid)
+            this.getUserCollection().document(uid)
                     .update(Constants.LUNCH_SPOT_ID_FIELD, lunchSpotId);
-        } else {
-            return null;
         }
     }
 
-    public Task<Void> updateLunchSpotName(String lunchSpotName) {
+    public void updateLunchSpotName(String lunchSpotName) {
         String uid = this.getCurrentUserId();
         if (uid != null) {
-            return this.getUserCollection().document(uid)
+            this.getUserCollection().document(uid)
                     .update(Constants.LUNCH_SPOT_NAME_FIELD, lunchSpotName);
-        } else {
-            return null;
         }
     }
 }
