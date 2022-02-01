@@ -2,11 +2,13 @@ package com.gabriel.aranias.go4lunch_v2.ui;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,14 +21,17 @@ import com.bumptech.glide.request.RequestOptions;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityMainBinding;
 import com.gabriel.aranias.go4lunch_v2.databinding.HeaderNavigationDrawerBinding;
+import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.ui.chat.ChatListFragment;
+import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
 import com.gabriel.aranias.go4lunch_v2.ui.list.ListFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.map.MapFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.workmate.WorkmateFragment;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.PermissionUtils;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.gson.Gson;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -179,6 +184,18 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
 
     // If user has chosen a restaurant, display its details on click
     private void getLunchDetails() {
+        SharedPreferences prefs = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
+        Gson gson = new Gson();
+        String json = prefs.getString(Constants.SAVED_LUNCH_SPOT, null);
+        NearbyPlaceModel lunchSpot = gson.fromJson(json, NearbyPlaceModel.class);
+
+        if (lunchSpot != null) {
+            Intent intent = new Intent(this, DetailActivity.class);
+            intent.putExtra(Constants.EXTRA_RESTAURANT, lunchSpot);
+            startActivity(intent);
+        } else {
+            Toast.makeText(this, R.string.not_selected, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void logOut() {

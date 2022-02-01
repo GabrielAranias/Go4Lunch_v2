@@ -107,7 +107,6 @@ public class NearbyPlaceModel implements Serializable {
         this.obfuscatedType = obfuscatedType;
     }
 
-
     public List<NearbyPlacePhoto> getPhotos() {
         return photos;
     }
@@ -123,7 +122,6 @@ public class NearbyPlaceModel implements Serializable {
     public void setPlaceId(String placeId) {
         this.placeId = placeId;
     }
-
 
     public Double getRating() {
         return rating;

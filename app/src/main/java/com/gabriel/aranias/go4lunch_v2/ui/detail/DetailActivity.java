@@ -1,6 +1,7 @@
 package com.gabriel.aranias.go4lunch_v2.ui.detail;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,6 +22,7 @@ import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.FieldValue;
+import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
 import java.util.Arrays;
@@ -32,6 +34,7 @@ public class DetailActivity extends AppCompatActivity {
     private ActivityDetailBinding binding;
     private PlacesClient placesClient;
     private final UserHelper userHelper = UserHelper.getInstance();
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +44,8 @@ public class DetailActivity extends AppCompatActivity {
 
         Places.initialize(getApplicationContext(), Constants.API_KEY);
         placesClient = Places.createClient(this);
+
+        prefs = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
 
         initToolbar();
         getRestaurantDetails();
@@ -264,12 +269,14 @@ public class DetailActivity extends AppCompatActivity {
         String msg;
         // Update in Firestore
         if (b) {
+            saveLunchSpot(restaurant);
             userHelper.updateLunchSpotId(restaurant.getPlaceId());
             userHelper.updateLunchSpotName(restaurant.getName());
             drawable = R.drawable.ic_baseline_check_circle_24;
             color = R.color.green;
             msg = getResources().getString(R.string.lunch_spot_add);
         } else {
+            removeLunchSpot();
             userHelper.updateLunchSpotId(null);
             userHelper.updateLunchSpotName(null);
             drawable = R.drawable.ic_baseline_lunch_dining_24;
@@ -282,6 +289,19 @@ public class DetailActivity extends AppCompatActivity {
             binding.detailLunchSpotFab.getDrawable().setTint(getResources().getColor(color));
             Snackbar.make(binding.getRoot(), msg, Snackbar.LENGTH_SHORT).show();
         });
+    }
+
+    private void saveLunchSpot(NearbyPlaceModel lunchSpot) {
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.clear().apply();
+        Gson gson = new Gson();
+        String json = gson.toJson(lunchSpot);
+        editor.putString(Constants.SAVED_LUNCH_SPOT, json);
+        editor.apply();
+    }
+
+    private void removeLunchSpot() {
+        prefs.edit().clear().apply();
     }
 
     private void getJoiningWorkmates() {

@@ -172,49 +172,47 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
     }
 
     private void getPlaces(String placeName) {
-        if (ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
-                == PackageManager.PERMISSION_GRANTED) {
+        if ((ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) && currentLocation != null) {
             String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                     + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
                     + "&radius=" + radius + "&type=" + placeName + "&key=" + Constants.API_KEY;
 
-            if (currentLocation != null) {
-                retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
-                    @SuppressLint("NotifyDataSetChanged")
-                    @Override
-                    public void onResponse(@NonNull Call<NearbySearchResponse> call,
-                                           @NonNull Response<NearbySearchResponse> response) {
-                        Gson gson = new Gson();
-                        String res = gson.toJson(response.body());
-                        Log.d("TAG", "onResponse: " + res);
-                        if (response.errorBody() == null) {
-                            if (response.body() != null) {
-                                if (response.body().getNearbyPlaceModelList() != null &&
-                                        response.body().getNearbyPlaceModelList().size() > 0) {
-                                    adapter.updateRestaurantList(nearbyPlaceModelList, currentLocation,
-                                            ListFragment.this);
-                                    nearbyPlaceModelList.clear();
-                                    nearbyPlaceModelList.addAll(response.body().getNearbyPlaceModelList());
-                                    adapter.notifyDataSetChanged();
-                                } else {
-                                    nearbyPlaceModelList.clear();
-                                    radius += 1000;
-                                    getPlaces(placeName);
-                                }
+            retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onResponse(@NonNull Call<NearbySearchResponse> call,
+                                       @NonNull Response<NearbySearchResponse> response) {
+                    Gson gson = new Gson();
+                    String res = gson.toJson(response.body());
+                    Log.d("TAG", "onResponse: " + res);
+                    if (response.errorBody() == null) {
+                        if (response.body() != null) {
+                            if (response.body().getNearbyPlaceModelList() != null &&
+                                    response.body().getNearbyPlaceModelList().size() > 0) {
+                                adapter.updateRestaurantList(nearbyPlaceModelList, currentLocation,
+                                        ListFragment.this);
+                                nearbyPlaceModelList.clear();
+                                nearbyPlaceModelList.addAll(response.body().getNearbyPlaceModelList());
+                                adapter.notifyDataSetChanged();
+                            } else {
+                                nearbyPlaceModelList.clear();
+                                radius += 1000;
+                                getPlaces(placeName);
                             }
-                        } else {
-                            Log.d("TAG", "onResponse: " + response.errorBody());
-                            Toast.makeText(requireContext(), "Error: " + response.errorBody(),
-                                    Toast.LENGTH_SHORT).show();
                         }
+                    } else {
+                        Log.d("TAG", "onResponse: " + response.errorBody());
+                        Toast.makeText(requireContext(), "Error: " + response.errorBody(),
+                                Toast.LENGTH_SHORT).show();
                     }
+                }
 
-                    @Override
-                    public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
-                        Log.d("TAG", "onFailure: " + t);
-                    }
-                });
-            }
+                @Override
+                public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
+                    Log.d("TAG", "onFailure: " + t);
+                }
+            });
         }
     }
 
