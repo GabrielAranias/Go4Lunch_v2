@@ -1,7 +1,9 @@
 package com.gabriel.aranias.go4lunch_v2.ui.workmate;
 
 import android.content.Context;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
@@ -12,15 +14,20 @@ import com.bumptech.glide.request.RequestOptions;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.WorkmateItemBinding;
 import com.gabriel.aranias.go4lunch_v2.model.User;
+import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class WorkmateAdapter extends RecyclerView.Adapter<WorkmateAdapter.ViewHolder> {
 
     private final ArrayList<User> workmates;
     private Context context;
     private final OnItemClickListener<User> listener;
+    private final UserHelper userHelper = UserHelper.getInstance();
 
     public WorkmateAdapter(Context context, ArrayList<User> workmates,
                            OnItemClickListener<User> listener) {
@@ -84,8 +91,31 @@ public class WorkmateAdapter extends RecyclerView.Adapter<WorkmateAdapter.ViewHo
         }
 
         private void getLunchSpotText(User workmate) {
-            binding.itemWorkmateLunchSpot.setText(context.getString(
-                    R.string.not_decided, workmate.getUsername()));
+            userHelper.getUserCollection()
+                    .whereEqualTo(Constants.USER_ID_FIELD, workmate.getUid())
+                    .addSnapshotListener((value, error) -> {
+                        if (error != null) {
+                            Log.w("TAG", "Listen failed", error);
+                            return;
+                        }
+                        for (QueryDocumentSnapshot doc : Objects.requireNonNull(value)) {
+                            User user = doc.toObject(User.class);
+                            String placeName = doc.getString(Constants.LUNCH_SPOT_NAME_FIELD);
+                            // Workmate has chosen a lunch spot
+                            if (placeName != null) {
+                                binding.itemWorkmateLunchSpot.setText(context.getString(
+                                        R.string.decided, user.getUsername()));
+                                binding.itemWorkmateLunchSpotName.setVisibility(View.VISIBLE);
+                                binding.itemWorkmateLunchSpotName.setText(context.getString(
+                                        R.string.decided_lunch_spot, user.getLunchSpotName()));
+                            } else {
+                                binding.itemWorkmateLunchSpot.setText(context.getString(
+                                        R.string.not_decided, user.getUsername()));
+                                binding.itemWorkmateLunchSpot.setTextColor(context.getResources()
+                                        .getColor(R.color.grey));
+                            }
+                        }
+                    });
         }
     }
 }

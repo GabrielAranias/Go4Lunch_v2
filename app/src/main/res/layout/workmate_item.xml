@@ -20,15 +20,32 @@
         android:id="@+id/item_workmate_lunch_spot"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="32dp"
+        android:layout_marginStart="16dp"
         android:ellipsize="end"
         android:maxLines="1"
         android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
         android:textColor="@color/black"
         android:textSize="14sp"
+        app:layout_constraintBottom_toBottomOf="@id/item_workmate_avatar"
         app:layout_constraintStart_toEndOf="@+id/item_workmate_avatar"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:text="Scarlett is eating at Le Zinc" />
+        app:layout_constraintTop_toTopOf="@id/item_workmate_avatar"
+        tools:text="Scarlett is eating at" />
+
+    <TextView
+        android:id="@+id/item_workmate_lunch_spot_name"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="16dp"
+        android:ellipsize="end"
+        android:maxLines="1"
+        android:textAppearance="@style/TextAppearance.MaterialComponents.Headline5"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:visibility="gone"
+        app:layout_constraintStart_toEndOf="@id/item_workmate_avatar"
+        app:layout_constraintTop_toBottomOf="@id/item_workmate_lunch_spot"
+        tools:text="Le Zinc"
+        tools:visibility="visible" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

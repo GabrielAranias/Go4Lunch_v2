@@ -56,7 +56,8 @@
 
     <string name="not_selected">You haven\'t selected a place for lunch yet</string>
     <string name="not_decided">%1$s hasn\'t decided yet</string>
-    <string name="decided">%1$s is eating at %2$s</string>
+    <string name="decided">%1$s is eating at</string>
+    <string name="decided_lunch_spot" translatable="false">%1$s</string>
     <string name="joining">%1$s is joining!</string>
 
     <string name="fetching_data">Fetching data…</string>

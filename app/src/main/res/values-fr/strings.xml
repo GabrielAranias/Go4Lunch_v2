@@ -30,7 +30,7 @@
     <string name="open">Actuellement ouvert</string>
     <string name="not_selected">Vous n\'avez pas encore sélectionné d\'endroit pour déjeuner</string>
     <string name="not_decided">%1$s n\'a pas encore décidé</string>
-    <string name="decided">%1$s déjeune ici : %2$s</string>
+    <string name="decided">%1$s déjeune ici :</string>
     <string name="joining">%1$s se joint à la fête !</string>
     <string name="fetching_data">Récupération des données…</string>
     <string name="fav_add">Cet endroit a été ajouté à vos Favoris</string>

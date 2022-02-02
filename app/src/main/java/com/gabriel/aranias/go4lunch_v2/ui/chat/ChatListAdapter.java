@@ -86,6 +86,8 @@ public class ChatListAdapter extends RecyclerView.Adapter<ChatListAdapter.ViewHo
         private void getLunchSpotText(User workmate) {
             binding.itemWorkmateLunchSpot.setText(workmate.getUsername());
             binding.itemWorkmateLunchSpot.setTextSize(20);
+            binding.itemWorkmateLunchSpot.setTextColor(context.getResources().getColor(
+                    R.color.red_primary));
         }
     }
 }
