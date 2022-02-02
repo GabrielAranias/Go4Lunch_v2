@@ -1,16 +1,19 @@
 package com.gabriel.aranias.go4lunch_v2.ui.detail;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityDetailBinding;
+import com.gabriel.aranias.go4lunch_v2.model.User;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
@@ -21,10 +24,12 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -35,6 +40,8 @@ public class DetailActivity extends AppCompatActivity {
     private PlacesClient placesClient;
     private final UserHelper userHelper = UserHelper.getInstance();
     private SharedPreferences prefs;
+    private DetailAdapter adapter;
+    private ArrayList<User> workmates;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +53,11 @@ public class DetailActivity extends AppCompatActivity {
         placesClient = Places.createClient(this);
 
         prefs = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);
+
+        workmates = new ArrayList<>();
+        binding.detailContent.detailWorkmateRv.setHasFixedSize(true);
+        adapter = new DetailAdapter(this, workmates);
+        binding.detailContent.detailWorkmateRv.setAdapter(adapter);
 
         initToolbar();
         getRestaurantDetails();
@@ -87,7 +99,7 @@ public class DetailActivity extends AppCompatActivity {
             getDetailsApi(restaurant);
             initLikeBtn(restaurant);
             initLunchSpotFab(restaurant);
-            getJoiningWorkmates();
+            getJoiningWorkmates(restaurant);
         }
     }
 
@@ -304,6 +316,29 @@ public class DetailActivity extends AppCompatActivity {
         prefs.edit().clear().apply();
     }
 
-    private void getJoiningWorkmates() {
+    @SuppressLint("NotifyDataSetChanged")
+    private void getJoiningWorkmates(NearbyPlaceModel restaurant) {
+        if (workmates.size() > 0) {
+            workmates.clear();
+        }
+        userHelper.getUserCollection().get().addOnCompleteListener(task -> {
+           if (task.getResult() != null) {
+               for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                   String placeId = documentSnapshot.getString(Constants.LUNCH_SPOT_ID_FIELD);
+                   if (placeId != null) {
+                       if (placeId.equals(restaurant.getPlaceId())) {
+                           User user = documentSnapshot.toObject(User.class);
+                           if (!Objects.requireNonNull(user).getUid().equals(
+                                   userHelper.getCurrentUser().getUid())) {
+                               workmates.add(user);
+                               binding.detailContent.detailNoWorkmateTv.setVisibility(View.GONE);
+                               binding.detailContent.detailWorkmateRv.setVisibility(View.VISIBLE);
+                           }
+                       }
+                   }
+               }
+           }
+           adapter.notifyDataSetChanged();
+        });
     }
 }

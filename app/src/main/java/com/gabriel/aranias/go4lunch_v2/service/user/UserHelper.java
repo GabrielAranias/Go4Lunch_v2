@@ -58,7 +58,7 @@ public class UserHelper {
     public Task<User> getUserData() {
         // Get user from Firestore x cast it to User object
         return Objects.requireNonNull(userRepository.getUserData()).continueWith(task ->
-                Objects.requireNonNull(task.getResult()).toObject(User.class));
+                task.getResult().toObject(User.class));
     }
 
     public Task<Void> updateUsername(String username) {

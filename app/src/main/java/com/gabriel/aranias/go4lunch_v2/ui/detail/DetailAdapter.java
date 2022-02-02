@@ -1,12 +1,15 @@
 package com.gabriel.aranias.go4lunch_v2.ui.detail;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.WorkmateItemBinding;
 import com.gabriel.aranias.go4lunch_v2.model.User;
@@ -52,12 +55,28 @@ public class DetailAdapter extends RecyclerView.Adapter<DetailAdapter.ViewHolder
             this.binding = itemBinding;
         }
 
-        // Display workmate list
+        // Display joining workmate list
         public void bindView(User workmate) {
+            // Text
             binding.itemWorkmateLunchSpot.setText(context.getString(
                     R.string.joining, workmate.getUsername()));
-            binding.itemWorkmateLunchSpot.setTextColor(context.getResources()
-                    .getColor(R.color.black));
+            binding.itemWorkmateLunchSpot.setTypeface(Typeface.defaultFromStyle(Typeface.BOLD));
+            // Photo
+            getPhoto(workmate);
+        }
+
+        private void getPhoto(User workmate) {
+            if (workmate.getPictureUrl() != null) {
+                Glide.with(context)
+                        .load(workmate.getPictureUrl())
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(binding.itemWorkmateAvatar);
+            } else {
+                Glide.with(context)
+                        .load(R.drawable.default_user_avatar)
+                        .apply(RequestOptions.circleCropTransform())
+                        .into(binding.itemWorkmateAvatar);
+            }
         }
     }
 }
