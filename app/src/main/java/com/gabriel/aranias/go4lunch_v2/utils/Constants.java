@@ -11,6 +11,7 @@ public class Constants {
 
     public static final String USER_COLLECTION = "users";
     public static final String MESSAGE_COLLECTION = "messages";
+    public static final String PLACE_COLLECTION = "places";
     public static final String USER_ID_FIELD = "uid";
     public static final String RECEIVER_ID_FIELD = "receiverId";
     public static final String USERNAME_FIELD = "username";

@@ -1,5 +1,6 @@
 package com.gabriel.aranias.go4lunch_v2.model.nearby;
 
+import com.google.firebase.firestore.DocumentId;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -66,6 +67,12 @@ public class NearbyPlaceModel implements Serializable {
 
     @Expose(serialize = false, deserialize = false)
     private boolean isSaved;
+
+    @DocumentId
+    private String docId;
+
+    public NearbyPlaceModel() {
+    }
 
     public String getBusinessStatus() {
         return businessStatus;
@@ -185,5 +192,13 @@ public class NearbyPlaceModel implements Serializable {
 
     public void setOpeningHours(NearbyPlaceOpeningHours openingHours) {
         this.openingHours = openingHours;
+    }
+
+    public String getDocId() {
+        return docId;
+    }
+
+    public void setDocId(String docId) {
+        this.docId = docId;
     }
 }

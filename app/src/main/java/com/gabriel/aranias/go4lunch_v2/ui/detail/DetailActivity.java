@@ -15,6 +15,7 @@ import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityDetailBinding;
 import com.gabriel.aranias.go4lunch_v2.model.User;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
+import com.gabriel.aranias.go4lunch_v2.service.place.PlaceHelper;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.google.android.gms.common.api.ApiException;
@@ -26,6 +27,7 @@ import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -39,6 +41,7 @@ public class DetailActivity extends AppCompatActivity {
     private ActivityDetailBinding binding;
     private PlacesClient placesClient;
     private final UserHelper userHelper = UserHelper.getInstance();
+    private final PlaceHelper placeHelper = PlaceHelper.getInstance();
     private SharedPreferences prefs;
     private DetailAdapter adapter;
     private ArrayList<User> workmates;
@@ -221,21 +224,23 @@ public class DetailActivity extends AppCompatActivity {
                 }));
     }
 
-    // Update view x add fav in Firestore
     private void likeRestaurant(NearbyPlaceModel restaurant) {
+        // Update view
         binding.detailContent.detailLikeBtn.setText(R.string.detail_unlike);
         binding.detailContent.detailLikeBtn.setIcon(ContextCompat.getDrawable
                 (getApplicationContext(), R.drawable.ic_baseline_star_24));
+        // Add place to user fav list in Firestore
         userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid())
                 .update(Constants.FAV_FIELD, FieldValue.arrayUnion(restaurant.getPlaceId()));
         Snackbar.make(binding.getRoot(), R.string.fav_add, Snackbar.LENGTH_SHORT).show();
     }
 
-    // Update view x remove fav from Firestore
     private void unlikeRestaurant(NearbyPlaceModel restaurant) {
+        // Update view
         binding.detailContent.detailLikeBtn.setText(R.string.detail_like);
         binding.detailContent.detailLikeBtn.setIcon(ContextCompat.getDrawable
                 (getApplicationContext(), R.drawable.ic_baseline_star_border_24));
+        // Remove place from user fav list in Firestore
         userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid())
                 .update(Constants.FAV_FIELD, FieldValue.arrayRemove(restaurant.getPlaceId()));
         Snackbar.make(binding.getRoot(), R.string.fav_remove, Snackbar.LENGTH_SHORT).show();
@@ -279,18 +284,23 @@ public class DetailActivity extends AppCompatActivity {
         int drawable;
         int color;
         String msg;
-        // Update in Firestore
         if (b) {
             saveLunchSpot(restaurant);
+            // Update user info in Firestore
             userHelper.updateLunchSpotId(restaurant.getPlaceId());
             userHelper.updateLunchSpotName(restaurant.getName());
+            // Add place to Firestore collection
+            placeHelper.getPlaceCollection().add(restaurant);
+
             drawable = R.drawable.ic_baseline_check_circle_24;
             color = R.color.green;
             msg = getResources().getString(R.string.lunch_spot_add);
         } else {
             removeLunchSpot();
+            // Update user info in Firestore
             userHelper.updateLunchSpotId(null);
             userHelper.updateLunchSpotName(null);
+
             drawable = R.drawable.ic_baseline_lunch_dining_24;
             color = R.color.red_primary;
             msg = getResources().getString(R.string.lunch_spot_remove);
@@ -322,23 +332,37 @@ public class DetailActivity extends AppCompatActivity {
             workmates.clear();
         }
         userHelper.getUserCollection().get().addOnCompleteListener(task -> {
-           if (task.getResult() != null) {
-               for (DocumentSnapshot documentSnapshot : task.getResult()) {
-                   String placeId = documentSnapshot.getString(Constants.LUNCH_SPOT_ID_FIELD);
-                   if (placeId != null) {
-                       if (placeId.equals(restaurant.getPlaceId())) {
-                           User user = documentSnapshot.toObject(User.class);
-                           if (!Objects.requireNonNull(user).getUid().equals(
-                                   userHelper.getCurrentUser().getUid())) {
-                               workmates.add(user);
-                               binding.detailContent.detailNoWorkmateTv.setVisibility(View.GONE);
-                               binding.detailContent.detailWorkmateRv.setVisibility(View.VISIBLE);
-                           }
-                       }
-                   }
-               }
-           }
-           adapter.notifyDataSetChanged();
+            if (task.getResult() != null) {
+                for (DocumentSnapshot documentSnapshot : task.getResult()) {
+                    String placeId = documentSnapshot.getString(Constants.LUNCH_SPOT_ID_FIELD);
+                    if (placeId != null) {
+                        if (placeId.equals(restaurant.getPlaceId())) {
+                            User user = documentSnapshot.toObject(User.class);
+                            if (!Objects.requireNonNull(user).getUid().equals(
+                                    userHelper.getCurrentUser().getUid())) {
+                                workmates.add(user);
+                                binding.detailContent.detailNoWorkmateTv.setVisibility(View.GONE);
+                                binding.detailContent.detailWorkmateRv.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                }
+            }
+            adapter.notifyDataSetChanged();
+        });
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        placeHelper.getPlaceCollection().addSnapshotListener(this, (value, error) -> {
+            if (error != null) {
+                return;
+            }
+            for (QueryDocumentSnapshot doc : Objects.requireNonNull(value)) {
+                NearbyPlaceModel place = doc.toObject(NearbyPlaceModel.class);
+                place.setDocId(doc.getId());
+            }
         });
     }
 }
