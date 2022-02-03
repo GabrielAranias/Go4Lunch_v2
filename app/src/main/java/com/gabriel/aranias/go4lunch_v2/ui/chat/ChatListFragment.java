@@ -85,18 +85,23 @@ public class ChatListFragment extends Fragment implements OnItemClickListener<Us
                         Log.e("TAG", "Firestore error: " + error.getMessage());
                         return;
                     }
+                    workmates.clear();
                     for (DocumentChange dc : Objects.requireNonNull(value).getDocumentChanges()) {
                         User user = dc.getDocument().toObject(User.class);
-                        if (dc.getType() == DocumentChange.Type.ADDED) {
-                            // Add all workmates except current user
-                            if (!user.getUid().equals(userHelper.getCurrentUser().getUid())) {
+                        switch (dc.getType()) {
+                            case ADDED:
+                                // Add all workmates except current user
+                                if (!user.getUid().equals(userHelper.getCurrentUser().getUid())) {
+                                    workmates.add(user);
+                                }
+                                break;
+                            case REMOVED:
+                                workmates.remove(user);
+                                break;
+                            case MODIFIED:
+                                workmates.remove(user);
                                 workmates.add(user);
-                            }
-                        } else if (dc.getType() == DocumentChange.Type.REMOVED) {
-                            workmates.remove(user);
-                        } else if (dc.getType() == DocumentChange.Type.MODIFIED) {
-                            workmates.remove(user);
-                            workmates.add(user);
+                                break;
                         }
                         adapter.notifyDataSetChanged();
                         if (progressDialog.isShowing()) {

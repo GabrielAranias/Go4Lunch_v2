@@ -8,7 +8,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.view.View;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +29,7 @@ import com.gabriel.aranias.go4lunch_v2.ui.map.MapFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.workmate.WorkmateFragment;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.PermissionUtils;
+import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
@@ -194,7 +194,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
             intent.putExtra(Constants.EXTRA_RESTAURANT, lunchSpot);
             startActivity(intent);
         } else {
-            Toast.makeText(this, R.string.not_selected, Toast.LENGTH_SHORT).show();
+            Snackbar.make(binding.getRoot(), R.string.not_selected, Snackbar.LENGTH_SHORT).show();
         }
     }
 
