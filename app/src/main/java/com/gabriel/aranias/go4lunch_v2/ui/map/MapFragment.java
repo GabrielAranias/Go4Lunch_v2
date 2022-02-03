@@ -29,6 +29,7 @@ import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbySearchResponse;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitApi;
 import com.gabriel.aranias.go4lunch_v2.service.place.RetrofitClient;
+import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.LoadingDialog;
@@ -50,6 +51,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -75,6 +77,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private List<NearbyPlaceModel> nearbyPlaceModelList;
     private int radius = 5000;
     private CustomPlace selectedPlace;
+    private final UserHelper userHelper = UserHelper.getInstance();
 
     public MapFragment() {
     }
@@ -268,7 +271,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                 map.clear();
                                 for (int i = 0; i < response.body().getNearbyPlaceModelList().size(); i++) {
                                     nearbyPlaceModelList.add(response.body().getNearbyPlaceModelList().get(i));
-                                    addMarker(response.body().getNearbyPlaceModelList().get(i), i);
+                                    countWorkmates(response.body().getNearbyPlaceModelList().get(i));
                                 }
                             } else {
                                 map.clear();
@@ -294,18 +297,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
-    private void addMarker(NearbyPlaceModel restaurant, int position) {
+    // Count joining workmates in each place to set different marker colors
+    private void countWorkmates(NearbyPlaceModel restaurant) {
+        userHelper.getUserCollection().get().addOnCompleteListener(task -> {
+            if (task.getResult() != null) {
+                for (DocumentSnapshot doc : task.getResult()) {
+                    String placeId = doc.getString(Constants.LUNCH_SPOT_ID_FIELD);
+                    if (placeId != null) {
+                        // Set marker color x add it to map
+                        Drawable background;
+                        if (placeId.equals(restaurant.getPlaceId())) {
+                            background = ContextCompat.getDrawable(
+                                    requireContext(), R.drawable.marker_green);
+                        } else {
+                            background = ContextCompat.getDrawable(
+                                    requireContext(), R.drawable.marker_red);
+                        }
+                        addMarker(restaurant, background);
+                    }
+                }
+            }
+        });
+    }
+
+    private void addMarker(NearbyPlaceModel restaurant, Drawable background) {
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(new LatLng(restaurant.getGeometry().getLocation().getLat(),
                         restaurant.getGeometry().getLocation().getLng()))
                 .title(restaurant.getName())
                 .snippet(restaurant.getVicinity());
-        markerOptions.icon(getCustomIcon());
+        markerOptions.icon(getCustomIcon(background));
         Objects.requireNonNull(map.addMarker(markerOptions)).setTag(restaurant);
     }
 
-    private BitmapDescriptor getCustomIcon() {
-        Drawable background = ContextCompat.getDrawable(requireContext(), R.drawable.marker_red);
+    private BitmapDescriptor getCustomIcon(Drawable background) {
         Objects.requireNonNull(background).setBounds(0, 0, background.getIntrinsicWidth(),
                 background.getIntrinsicHeight());
         Bitmap bitmap = Bitmap.createBitmap(background.getIntrinsicWidth(),
