@@ -6,6 +6,7 @@
         <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/drawable/background_chat_input.xml" value="0.188" />
         <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/drawable/background_content_top.xml" value="0.188" />
         <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/drawable/background_received_message.xml" value="0.188" />
+        <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/drawable/background_search.xml" value="0.203" />
         <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/drawable/background_sent_message.xml" value="0.188" />
         <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/drawable/background_white_rounded_card.xml" value="0.26614583333333336" />
         <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/drawable/green_marker.xml" value="0.26614583333333336" />
@@ -49,6 +50,7 @@
         <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/menu/bottom_navigation.xml" value="0.25" />
         <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/menu/navigation_drawer.xml" value="0.25" />
         <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/menu/search.xml" value="0.25" />
+        <entry key="..\:/Users/MSI/Documents/Formation/P7/Go4Lunch_v2/app/src/main/res/xml/searchable.xml" value="0.25" />
       </map>
     </option>
   </component>

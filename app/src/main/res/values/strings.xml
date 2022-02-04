@@ -69,4 +69,7 @@
 
     <string name="msg_input">Type your message</string>
 
+    <string name="search" translatable="false">Search</string>
+    <string name="search_hint">Search for restaurants</string>
+
 </resources>

@@ -38,4 +38,5 @@
     <string name="lunch_spot_add">Vous déjeunez ici</string>
     <string name="lunch_spot_remove">Vous ne déjeunez plus ici</string>
     <string name="msg_input">Ecrivez votre message</string>
+    <string name="search_hint">Cherchez un restaurant</string>
 </resources>

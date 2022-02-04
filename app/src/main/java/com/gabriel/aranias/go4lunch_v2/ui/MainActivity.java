@@ -33,6 +33,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
 
     private ActivityMainBinding binding;
@@ -48,6 +50,9 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         setContentView(binding.getRoot());
         View headerView = binding.mainNavigationDrawer.getHeaderView(0);
         headerBinding = HeaderNavigationDrawerBinding.bind(headerView);
+
+        setSupportActionBar(binding.mainToolbar);
+        Objects.requireNonNull(getSupportActionBar()).setTitle(getString(R.string.nav_hungry));
 
         checkUser();
         initBottomNavigationView();

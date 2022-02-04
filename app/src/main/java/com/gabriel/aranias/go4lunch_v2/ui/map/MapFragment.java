@@ -12,12 +12,15 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -34,6 +37,7 @@ import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.LoadingDialog;
 import com.gabriel.aranias.go4lunch_v2.utils.PlaceUtils;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -49,12 +53,21 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -78,6 +91,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private int radius = 5000;
     private CustomPlace selectedPlace;
     private final UserHelper userHelper = UserHelper.getInstance();
+    private PlacesClient placesClient;
 
     public MapFragment() {
     }
@@ -85,6 +99,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -96,6 +111,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         loadingDialog = new LoadingDialog(requireActivity());
         retrofitApi = RetrofitClient.getRetrofitApi();
         nearbyPlaceModelList = new ArrayList<>();
+
+        Places.initialize(requireContext(), Constants.API_KEY);
+        placesClient = Places.createClient(requireActivity());
 
         // Build map
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
@@ -363,5 +381,79 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.search, menu);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setQueryHint(getString(R.string.search_hint));
+        searchView.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_search));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+
+                if (currentLocation != null) {
+
+                    // Create object from 2 points around user location (southwest x northeast)
+                    RectangularBounds bounds = RectangularBounds.newInstance(
+                            new LatLng(currentLocation.getLatitude() - 0.003,
+                                    currentLocation.getLongitude() - 0.01),
+                            new LatLng(currentLocation.getLatitude() + 0.003,
+                                    currentLocation.getLongitude() + 0.01));
+
+                    // Use builder to create FindAutocompletePredictionsRequest
+                    FindAutocompletePredictionsRequest request =
+                            FindAutocompletePredictionsRequest.builder()
+                                    .setLocationRestriction(bounds)
+                                    .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                                    .setQuery(newText)
+                                    .build();
+
+                    placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
+                        for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
+
+                            map.clear();
+                            getPlaceLocation(prediction);
+
+                        }
+                    }).addOnFailureListener((exception) -> {
+                        if (exception instanceof ApiException) {
+                            ApiException apiException = (ApiException) exception;
+                            Log.e("TAG", apiException.getMessage());
+                        }
+                    });
+                }
+                return false;
+            }
+        });
+    }
+
+    private void getPlaceLocation(AutocompletePrediction prediction) {
+        List<Place.Field> placeFields = Arrays.asList(
+                Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME);
+        FetchPlaceRequest request = FetchPlaceRequest.newInstance(
+                prediction.getPlaceId(), placeFields);
+
+        placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+            LatLng latLng = place.getLatLng();
+
+            // Refresh map w/ autocomplete prediction list pins
+            if (latLng != null) {
+                map.addMarker(new MarkerOptions()
+                        .position(new LatLng(latLng.latitude, latLng.longitude))
+                        .title(place.getName())
+                        .snippet(place.getAddress()));
+            }
+        });
     }
 }
