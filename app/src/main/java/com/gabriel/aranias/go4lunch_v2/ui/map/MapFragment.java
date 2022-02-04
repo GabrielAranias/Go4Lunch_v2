@@ -2,6 +2,8 @@ package com.gabriel.aranias.go4lunch_v2.ui.map;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
@@ -16,6 +18,7 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -55,10 +58,9 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
-import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.chip.Chip;
@@ -67,7 +69,6 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -92,6 +93,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private CustomPlace selectedPlace;
     private final UserHelper userHelper = UserHelper.getInstance();
     private PlacesClient placesClient;
+    private AutocompleteSessionToken token;
 
     public MapFragment() {
     }
@@ -114,6 +116,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         Places.initialize(requireContext(), Constants.API_KEY);
         placesClient = Places.createClient(requireActivity());
+        token = AutocompleteSessionToken.newInstance();
 
         // Build map
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
@@ -285,10 +288,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         if (response.body() != null) {
                             if (response.body().getNearbyPlaceModelList() != null &&
                                     response.body().getNearbyPlaceModelList().size() > 0) {
-                                nearbyPlaceModelList.clear();
                                 map.clear();
+                                nearbyPlaceModelList.clear();
+                                nearbyPlaceModelList.addAll(response.body().getNearbyPlaceModelList());
                                 for (int i = 0; i < response.body().getNearbyPlaceModelList().size(); i++) {
-                                    nearbyPlaceModelList.add(response.body().getNearbyPlaceModelList().get(i));
                                     countWorkmates(response.body().getNearbyPlaceModelList().get(i));
                                 }
                             } else {
@@ -388,9 +391,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         super.onCreateOptionsMenu(menu, inflater);
 
         inflater.inflate(R.menu.search, menu);
+        SearchManager searchManager = (SearchManager) requireActivity()
+                .getSystemService(Context.SEARCH_SERVICE);
         SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
-        searchView.setQueryHint(getString(R.string.search_hint));
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().getComponentName()));
         searchView.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_search));
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
 
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
@@ -400,9 +406,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public boolean onQueryTextChange(String newText) {
-
                 if (currentLocation != null) {
-
                     // Create object from 2 points around user location (southwest x northeast)
                     RectangularBounds bounds = RectangularBounds.newInstance(
                             new LatLng(currentLocation.getLatitude() - 0.003,
@@ -416,14 +420,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                     .setLocationRestriction(bounds)
                                     .setTypeFilter(TypeFilter.ESTABLISHMENT)
                                     .setQuery(newText)
+                                    .setSessionToken(token)
                                     .build();
 
                     placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
                         for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
 
                             map.clear();
-                            getPlaceLocation(prediction);
-
+                            for (NearbyPlaceModel place : nearbyPlaceModelList) {
+                                if (prediction.getPlaceId().equals(place.getPlaceId())) {
+                                    // Refresh map w/ predicted places
+                                    countWorkmates(place);
+                                    // Move camera to predicted place's position
+                                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+                                            new LatLng(place.getGeometry().getLocation().getLat(),
+                                                    place.getGeometry().getLocation().getLng()), 17);
+                                    map.animateCamera(cameraUpdate);
+                                }
+                            }
                         }
                     }).addOnFailureListener((exception) -> {
                         if (exception instanceof ApiException) {
@@ -432,27 +446,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         }
                     });
                 }
-                return false;
-            }
-        });
-    }
-
-    private void getPlaceLocation(AutocompletePrediction prediction) {
-        List<Place.Field> placeFields = Arrays.asList(
-                Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME);
-        FetchPlaceRequest request = FetchPlaceRequest.newInstance(
-                prediction.getPlaceId(), placeFields);
-
-        placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-            Place place = response.getPlace();
-            LatLng latLng = place.getLatLng();
-
-            // Refresh map w/ autocomplete prediction list pins
-            if (latLng != null) {
-                map.addMarker(new MarkerOptions()
-                        .position(new LatLng(latLng.latitude, latLng.longitude))
-                        .title(place.getName())
-                        .snippet(place.getAddress()));
+                return true;
             }
         });
     }
