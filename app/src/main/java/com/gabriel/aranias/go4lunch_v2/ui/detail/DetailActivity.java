@@ -248,36 +248,28 @@ public class DetailActivity extends AppCompatActivity {
 
     // Change initial state view if restaurant is lunch spot
     private void initLunchSpotFab(NearbyPlaceModel restaurant) {
-        if (userHelper.getCurrentUser() != null) {
-            userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
-                    .addOnCompleteListener(task -> {
-                        if (task.getResult() != null) {
-                            String result = task.getResult().getString(Constants.LUNCH_SPOT_ID_FIELD);
-                            if (result != null) {
-                                if (result.equals(restaurant.getPlaceId())) {
-                                    binding.detailLunchSpotFab.setImageDrawable(ContextCompat.getDrawable(
-                                            getApplicationContext(), R.drawable.ic_baseline_check_circle_24));
-                                    binding.detailLunchSpotFab.getDrawable().setTint(getResources()
-                                            .getColor(R.color.green));
-                                }
-                            }
-                        }
-                    });
-        }
+        userHelper.getUserData().addOnSuccessListener(user -> {
+            String lunchSpotId = user.getLunchSpotId();
+            if (lunchSpotId != null) {
+                if (lunchSpotId.equals(restaurant.getPlaceId())) {
+                    binding.detailLunchSpotFab.setImageDrawable(ContextCompat.getDrawable(
+                            getApplicationContext(), R.drawable.ic_baseline_check_circle_24));
+                    binding.detailLunchSpotFab.getDrawable().setTint(getResources()
+                            .getColor(R.color.green));
+                }
+            }
+        });
         setFabListener(restaurant);
     }
 
     // Check if restaurant is already lunch spot
     private void setFabListener(NearbyPlaceModel restaurant) {
         binding.detailLunchSpotFab.setOnClickListener(view ->
-                userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
-                        .addOnCompleteListener(task -> {
-                            if (task.getResult() != null) {
-                                String result = task.getResult().getString(Constants.LUNCH_SPOT_ID_FIELD);
-                                isLunchSpot(result == null ||
-                                        !result.equals(restaurant.getPlaceId()), restaurant);
-                            }
-                        }));
+                userHelper.getUserData().addOnSuccessListener(user -> {
+                    String lunchSpotId = user.getLunchSpotId();
+                    isLunchSpot(lunchSpotId == null ||
+                            !lunchSpotId.equals(restaurant.getPlaceId()), restaurant);
+                }));
     }
 
     private void isLunchSpot(boolean b, NearbyPlaceModel restaurant) {
@@ -289,6 +281,7 @@ public class DetailActivity extends AppCompatActivity {
             // Update user info in Firestore
             userHelper.updateLunchSpotId(restaurant.getPlaceId());
             userHelper.updateLunchSpotName(restaurant.getName());
+            userHelper.updateLunchSpotAddress(restaurant.getVicinity());
             // Add place to Firestore collection
             placeHelper.getPlaceCollection().add(restaurant);
 
@@ -300,6 +293,7 @@ public class DetailActivity extends AppCompatActivity {
             // Update user info in Firestore
             userHelper.updateLunchSpotId(null);
             userHelper.updateLunchSpotName(null);
+            userHelper.updateLunchSpotAddress(null);
 
             drawable = R.drawable.ic_baseline_lunch_dining_24;
             color = R.color.red_primary;

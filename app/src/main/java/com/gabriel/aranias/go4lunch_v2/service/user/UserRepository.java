@@ -62,7 +62,7 @@ public final class UserRepository {
             String username = user.getDisplayName();
             String uid = user.getUid();
 
-            User userToCreate = new User(uid, username, pictureUrl, null, null);
+            User userToCreate = new User(uid, username, pictureUrl, null, null, null);
 
             Task<DocumentSnapshot> userData = getUserData();
             // If user already exists in Firestore, get their data
@@ -74,6 +74,14 @@ public final class UserRepository {
                 if (documentSnapshot.contains(Constants.LUNCH_SPOT_NAME_FIELD)) {
                     userToCreate.setLunchSpotName((String) documentSnapshot
                             .get(Constants.LUNCH_SPOT_NAME_FIELD));
+                }
+                if (documentSnapshot.contains(Constants.LUNCH_SPOT_ADDRESS_FIELD)) {
+                    userToCreate.setLunchSpotAddress((String) documentSnapshot
+                            .get(Constants.LUNCH_SPOT_ADDRESS_FIELD));
+                }
+                if (documentSnapshot.contains(Constants.NOTIFICATION_ENABLED_FIELD)) {
+                    userToCreate.setNotificationEnabled((Boolean) documentSnapshot
+                            .get(Constants.NOTIFICATION_ENABLED_FIELD));
                 }
                 this.getUserCollection().document(uid).set(userToCreate);
             });
@@ -126,6 +134,14 @@ public final class UserRepository {
         if (uid != null) {
             this.getUserCollection().document(uid)
                     .update(Constants.LUNCH_SPOT_NAME_FIELD, lunchSpotName);
+        }
+    }
+
+    public void updateLunchSpotAddress(String lunchSpotAddress) {
+        String uid = this.getCurrentUserId();
+        if (uid != null) {
+            this.getUserCollection().document(uid)
+                    .update(Constants.LUNCH_SPOT_ADDRESS_FIELD, lunchSpotAddress);
         }
     }
 }

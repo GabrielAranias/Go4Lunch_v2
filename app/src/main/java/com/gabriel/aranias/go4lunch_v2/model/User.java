@@ -15,17 +15,23 @@ public class User implements Serializable {
     private String lunchSpotId;
     @Nullable
     private String lunchSpotName;
+    @Nullable
+    private String lunchSpotAddress;
+    private Boolean isNotificationEnabled;
 
     public User() {
     }
 
     public User(String uid, String username, @Nullable String pictureUrl,
-                @Nullable String lunchSpotId, @Nullable String lunchSpotName) {
+                @Nullable String lunchSpotId, @Nullable String lunchSpotName,
+                @Nullable String lunchSpotAddress) {
         this.uid = uid;
         this.username = username;
         this.pictureUrl = pictureUrl;
         this.lunchSpotId = lunchSpotId;
         this.lunchSpotName = lunchSpotName;
+        this.lunchSpotAddress = lunchSpotAddress;
+        this.isNotificationEnabled = true;
     }
 
     public String getUid() {
@@ -71,6 +77,23 @@ public class User implements Serializable {
         this.lunchSpotName = lunchSpotName;
     }
 
+    @Nullable
+    public String getLunchSpotAddress() {
+        return lunchSpotAddress;
+    }
+
+    public void setLunchSpotAddress(@Nullable String lunchSpotAddress) {
+        this.lunchSpotAddress = lunchSpotAddress;
+    }
+
+    public Boolean getNotificationEnabled() {
+        return isNotificationEnabled;
+    }
+
+    public void setNotificationEnabled(Boolean notificationEnabled) {
+        isNotificationEnabled = notificationEnabled;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -80,11 +103,14 @@ public class User implements Serializable {
                 Objects.equals(username, user.username) &&
                 Objects.equals(pictureUrl, user.pictureUrl) &&
                 Objects.equals(lunchSpotId, user.lunchSpotId) &&
-                Objects.equals(lunchSpotName, user.lunchSpotName);
+                Objects.equals(lunchSpotName, user.lunchSpotName) &&
+                Objects.equals(lunchSpotAddress, user.lunchSpotAddress) &&
+                Objects.equals(isNotificationEnabled, user.isNotificationEnabled);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(uid, username, pictureUrl, lunchSpotId, lunchSpotName);
+        return Objects.hash(uid, username, pictureUrl, lunchSpotId, lunchSpotName,
+                lunchSpotAddress, isNotificationEnabled);
     }
 }

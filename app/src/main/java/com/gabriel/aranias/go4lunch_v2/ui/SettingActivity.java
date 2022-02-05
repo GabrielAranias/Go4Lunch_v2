@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Toast;
 
@@ -12,7 +13,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivitySettingBinding;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.utils.Constants;
+import com.google.firebase.firestore.SetOptions;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 
 public class SettingActivity extends AppCompatActivity {
@@ -20,6 +25,8 @@ public class SettingActivity extends AppCompatActivity {
     private ActivitySettingBinding binding;
     private final UserHelper userHelper = UserHelper.getInstance();
     private static boolean updatedName = false;
+    private Boolean temporarySwitch;
+    private Boolean switchValue;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +36,7 @@ public class SettingActivity extends AppCompatActivity {
 
         initToolbar();
         setUpListeners();
+        initSwitch();
     }
 
     private void initToolbar() {
@@ -83,5 +91,44 @@ public class SettingActivity extends AppCompatActivity {
 
     public static Boolean nameIsUpdated() {
         return updatedName;
+    }
+
+    private void initSwitch() {
+        binding.settingToolbar.setNavigationOnClickListener(view -> {
+            // When user leaves activity, save new switch value if changed
+            if (temporarySwitch != switchValue) {
+                Map<String, Object> data = new HashMap<>();
+                data.put(Constants.NOTIFICATION_ENABLED_FIELD, temporarySwitch);
+                // Save in Firestore
+                userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid())
+                        .set(data, SetOptions.merge()).addOnSuccessListener(unused ->
+                        // Save x leave activity
+                        this.onBackPressed())
+                        .addOnFailureListener(e -> Log.e("TAG", "Firestore failure: " + e));
+            } else {
+                // No change
+                this.onBackPressed();
+            }
+        });
+        getSwitchValue();
+        binding.settingSwitch.setOnCheckedChangeListener((buttonView, isChecked) ->
+                temporarySwitch = isChecked);
+    }
+
+    private void getSwitchValue() {
+        userHelper.getUserCollection().document(userHelper.getCurrentUser().getUid()).get()
+                .addOnCompleteListener(task -> {
+                    if (task.getResult() != null) {
+                        Boolean isNotificationEnabled = (Boolean) task.getResult().
+                                get(Constants.NOTIFICATION_ENABLED_FIELD);
+                        if (isNotificationEnabled != null) {
+                            // Check or uncheck switch, whether notifications are enabled or not
+                            switchValue = isNotificationEnabled;
+                            temporarySwitch = isNotificationEnabled;
+                            binding.settingSwitch.setChecked(switchValue);
+                            binding.settingSwitch.jumpDrawablesToCurrentState();
+                        }
+                    }
+                });
     }
 }

@@ -1,6 +1,9 @@
 package com.gabriel.aranias.go4lunch_v2.ui;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
@@ -21,6 +24,7 @@ import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityMainBinding;
 import com.gabriel.aranias.go4lunch_v2.databinding.HeaderNavigationDrawerBinding;
 import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
+import com.gabriel.aranias.go4lunch_v2.notification.NotificationReceiver;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
 import com.gabriel.aranias.go4lunch_v2.ui.chat.ChatListFragment;
 import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
@@ -33,6 +37,8 @@ import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.gson.Gson;
 
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -58,6 +64,7 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
         initBottomNavigationView();
         initNavigationDrawer();
         enableDeviceLocation();
+        setDailyNotification();
     }
 
     // Start LoginActivity if user hasn't signed in
@@ -254,5 +261,27 @@ public class MainActivity extends AppCompatActivity implements ActivityCompat.On
     private void showMissingPermissionError() {
         PermissionUtils.PermissionDeniedDialog
                 .newInstance(true).show(getSupportFragmentManager(), "dialog");
+    }
+
+    private void setDailyNotification() {
+        // Set alarm at noon
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(Calendar.HOUR_OF_DAY, 12);
+        calendar.set(Calendar.MINUTE, 0);
+
+        // If user hasn't chosen lunch spot before noon, set alarm for day after
+        if (calendar.getTime().compareTo(new Date()) > 0) {
+            calendar.add(Calendar.DAY_OF_MONTH, 1);
+
+            Intent intent = new Intent(getApplicationContext(), NotificationReceiver.class);
+            @SuppressLint("UnspecifiedImmutableFlag")
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(getApplicationContext(),
+                    Constants.NOTIFICATION_ID, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+            AlarmManager manager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            if (manager != null) {
+                manager.setRepeating(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(),
+                        AlarmManager.INTERVAL_DAY, pendingIntent);
+            }
+        }
     }
 }

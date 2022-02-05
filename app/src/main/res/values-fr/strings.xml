@@ -39,4 +39,8 @@
     <string name="lunch_spot_remove">Vous ne déjeunez plus ici</string>
     <string name="msg_input">Ecrivez votre message</string>
     <string name="search_hint">Cherchez un restaurant</string>
+    <string name="and">et</string>
+    <string name="notification_text">Vous déjeunez ici : %1$s, au %2$s, avec %3$s</string>
+    <string name="notification_title">N\'oubliez pas votre déjeuner aujourd\'hui !</string>
+    <string name="switch_text">Notifications de déjeuner</string>
 </resources>

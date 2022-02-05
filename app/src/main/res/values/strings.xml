@@ -72,4 +72,8 @@
     <string name="search" translatable="false">Search</string>
     <string name="search_hint">Search for restaurants</string>
 
+    <string name="and">and</string>
+    <string name="notification_text">You\'re lunching at %1$s, located at %2$s, with %3$s</string>
+    <string name="notification_title">Don\'t forget your lunch today!</string>
+    <string name="switch_text">Lunch Notifications</string>
 </resources>

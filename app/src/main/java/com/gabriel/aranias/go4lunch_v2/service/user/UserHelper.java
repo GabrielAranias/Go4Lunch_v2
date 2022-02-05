@@ -76,4 +76,8 @@ public class UserHelper {
     public void updateLunchSpotName(String lunchSpotName) {
         userRepository.updateLunchSpotName(lunchSpotName);
     }
+
+    public void updateLunchSpotAddress(String lunchSpotAddress) {
+        userRepository.updateLunchSpotAddress(lunchSpotAddress);
+    }
 }
