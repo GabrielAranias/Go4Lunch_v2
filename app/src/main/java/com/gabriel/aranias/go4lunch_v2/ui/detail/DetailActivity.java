@@ -25,9 +25,9 @@ import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FieldValue;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
 
@@ -246,7 +246,7 @@ public class DetailActivity extends AppCompatActivity {
         Snackbar.make(binding.getRoot(), R.string.fav_remove, Snackbar.LENGTH_SHORT).show();
     }
 
-    // Change initial state view if restaurant is lunch spot
+    // Change initial state view if restaurant has been chosen as lunch spot
     private void initLunchSpotFab(NearbyPlaceModel restaurant) {
         userHelper.getUserData().addOnSuccessListener(user -> {
             String lunchSpotId = user.getLunchSpotId();
@@ -262,7 +262,7 @@ public class DetailActivity extends AppCompatActivity {
         setFabListener(restaurant);
     }
 
-    // Check if restaurant is already lunch spot
+    // Check if restaurant has already been chosen as lunch spot
     private void setFabListener(NearbyPlaceModel restaurant) {
         binding.detailLunchSpotFab.setOnClickListener(view ->
                 userHelper.getUserData().addOnSuccessListener(user -> {
@@ -277,23 +277,29 @@ public class DetailActivity extends AppCompatActivity {
         int color;
         String msg;
         if (b) {
-            saveLunchSpot(restaurant);
-            // Update user info in Firestore
+            // If user has already chosen a lunch spot beforehand, delete it from Firestore
+            deletePreviousLunchSpot(restaurant);
+            // Add lunch spot to Firestore 'places' collection
+            createPlace(restaurant);
+            // Update info in Firestore 'users' collection
             userHelper.updateLunchSpotId(restaurant.getPlaceId());
             userHelper.updateLunchSpotName(restaurant.getName());
             userHelper.updateLunchSpotAddress(restaurant.getVicinity());
-            // Add place to Firestore collection
-            placeHelper.getPlaceCollection().add(restaurant);
+            // Save chosen lunch spot to shared prefs
+            saveLunchSpot(restaurant);
 
             drawable = R.drawable.ic_baseline_check_circle_24;
             color = R.color.green;
             msg = getResources().getString(R.string.lunch_spot_add);
         } else {
-            removeLunchSpot();
-            // Update user info in Firestore
+            // Delete lunch spot from Firestore 'places' collection
+            placeHelper.getPlaceCollection().document(restaurant.getDocId()).delete();
+            // Update info in Firestore 'users' collection
             userHelper.updateLunchSpotId(null);
             userHelper.updateLunchSpotName(null);
             userHelper.updateLunchSpotAddress(null);
+            // Clear shared prefs
+            removeLunchSpot();
 
             drawable = R.drawable.ic_baseline_lunch_dining_24;
             color = R.color.red_primary;
@@ -320,6 +326,50 @@ public class DetailActivity extends AppCompatActivity {
         prefs.edit().clear().apply();
     }
 
+    private void deletePreviousLunchSpot(NearbyPlaceModel restaurant) {
+        placeHelper.getPlaceCollection().get().addOnCompleteListener(task -> {
+            if (task.getResult() != null) {
+                for (DocumentSnapshot doc : task.getResult()) {
+                    if (doc.exists() && doc.contains(Constants.USER_ID_FIELD)) {
+                        String userId = doc.getString(Constants.USER_ID_FIELD);
+                        if (Objects.requireNonNull(userId).equals(userHelper.getCurrentUser().getUid())) {
+                            NearbyPlaceModel place = doc.toObject(NearbyPlaceModel.class);
+                            if (place != null && !(place.getPlaceId().equals(restaurant.getPlaceId()))) {
+                                placeHelper.getPlaceCollection().document(doc.getId()).delete();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void createPlace(NearbyPlaceModel lunchSpot) {
+        DocumentReference ref = placeHelper.getPlaceCollection().document();
+        ref.set(lunchSpot);
+        ref.get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                DocumentSnapshot doc = task.getResult();
+                if (doc.exists()) {
+                    NearbyPlaceModel place = doc.toObject(NearbyPlaceModel.class);
+                    Objects.requireNonNull(place).setDocId(doc.getId());
+                    if (place.getPlaceId().equals(lunchSpot.getPlaceId())) {
+                        lunchSpot.setDocId(doc.getId());
+                    }
+                    addUserId(lunchSpot);
+                }
+            }
+        });
+    }
+
+    private void addUserId(NearbyPlaceModel lunchSpot) {
+        placeHelper.getPlaceCollection().document(lunchSpot.getDocId())
+                .update(Constants.USER_ID_FIELD, userHelper.getCurrentUser().getUid())
+                .addOnSuccessListener(aVoid ->
+                        Log.d("TAG", "DocumentSnapshot successfully updated"))
+                .addOnFailureListener(e -> Log.w("TAG", "Error updating document", e));
+    }
+
     @SuppressLint("NotifyDataSetChanged")
     private void getJoiningWorkmates(NearbyPlaceModel restaurant) {
         if (workmates.size() > 0) {
@@ -343,20 +393,6 @@ public class DetailActivity extends AppCompatActivity {
                 }
             }
             adapter.notifyDataSetChanged();
-        });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        placeHelper.getPlaceCollection().addSnapshotListener(this, (value, error) -> {
-            if (error != null) {
-                return;
-            }
-            for (QueryDocumentSnapshot doc : Objects.requireNonNull(value)) {
-                NearbyPlaceModel place = doc.toObject(NearbyPlaceModel.class);
-                place.setDocId(doc.getId());
-            }
         });
     }
 }

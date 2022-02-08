@@ -100,15 +100,15 @@ public class WorkmateAdapter extends RecyclerView.Adapter<WorkmateAdapter.ViewHo
                         }
                         for (QueryDocumentSnapshot doc : Objects.requireNonNull(value)) {
                             User user = doc.toObject(User.class);
-                            String placeName = doc.getString(Constants.LUNCH_SPOT_NAME_FIELD);
-                            // Workmate has chosen a lunch spot
-                            if (placeName != null) {
+                            if (user.getLunchSpotId() != null) {
+                                // Workmate has chosen a lunch spot
                                 binding.itemWorkmateLunchSpot.setText(context.getString(
                                         R.string.decided, user.getUsername()));
                                 binding.itemWorkmateLunchSpotName.setVisibility(View.VISIBLE);
                                 binding.itemWorkmateLunchSpotName.setText(context.getString(
                                         R.string.decided_lunch_spot, user.getLunchSpotName()));
                             } else {
+                                // Workmate hasn't decided yet
                                 binding.itemWorkmateLunchSpot.setText(context.getString(
                                         R.string.not_decided, user.getUsername()));
                                 binding.itemWorkmateLunchSpot.setTextColor(context.getResources()

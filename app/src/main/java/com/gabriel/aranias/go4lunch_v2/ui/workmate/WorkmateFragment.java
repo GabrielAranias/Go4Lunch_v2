@@ -2,6 +2,7 @@ package com.gabriel.aranias.go4lunch_v2.ui.workmate;
 
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -16,11 +17,15 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentWorkmateBinding;
 import com.gabriel.aranias.go4lunch_v2.model.User;
+import com.gabriel.aranias.go4lunch_v2.model.nearby.NearbyPlaceModel;
+import com.gabriel.aranias.go4lunch_v2.service.place.PlaceHelper;
 import com.gabriel.aranias.go4lunch_v2.service.user.UserHelper;
+import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.Objects;
@@ -28,6 +33,7 @@ import java.util.Objects;
 public class WorkmateFragment extends Fragment implements OnItemClickListener<User> {
 
     private final UserHelper userHelper = UserHelper.getInstance();
+    private final PlaceHelper placeHelper = PlaceHelper.getInstance();
     private FragmentWorkmateBinding binding;
     private WorkmateAdapter adapter;
     private ArrayList<User> workmates;
@@ -113,6 +119,22 @@ public class WorkmateFragment extends Fragment implements OnItemClickListener<Us
 
     @Override
     public void onItemClicked(User workmate) {
+        placeHelper.getPlaceCollection()
+                .whereEqualTo(Constants.USER_ID_FIELD, workmate.getUid())
+                .addSnapshotListener(((value, error) -> {
+                    if (error != null) {
+                        Log.w("TAG", "Listen failed", error);
+                        return;
+                    }
+                    for (QueryDocumentSnapshot doc : Objects.requireNonNull(value)) {
+                        if (doc.contains(Constants.USER_ID_FIELD)) {
+                            NearbyPlaceModel lunchSpot = doc.toObject(NearbyPlaceModel.class);
+                            Intent intent = new Intent(requireActivity(), DetailActivity.class);
+                            intent.putExtra(Constants.EXTRA_RESTAURANT, lunchSpot);
+                            startActivity(intent);
+                        }
+                    }
+                }));
     }
 
     @Override

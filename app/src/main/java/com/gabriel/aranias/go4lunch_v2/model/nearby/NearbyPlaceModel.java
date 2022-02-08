@@ -1,6 +1,5 @@
 package com.gabriel.aranias.go4lunch_v2.model.nearby;
 
-import com.google.firebase.firestore.DocumentId;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -65,13 +64,31 @@ public class NearbyPlaceModel implements Serializable {
     @Expose
     private NearbyPlaceOpeningHours openingHours;
 
-    @Expose(serialize = false, deserialize = false)
-    private boolean isSaved;
-
-    @DocumentId
     private String docId;
 
     public NearbyPlaceModel() {
+    }
+
+    public NearbyPlaceModel(String businessStatus, NearbyPlaceGeometry geometry, String icon,
+                            String name, List<Object> obfuscatedType, List<NearbyPlacePhoto> photos,
+                            String placeId, Double rating, String reference, String scope,
+                            List<String> types, Integer userRatingsTotal, String vicinity,
+                            NearbyPlaceOpeningHours openingHours, String docId) {
+        this.businessStatus = businessStatus;
+        this.geometry = geometry;
+        this.icon = icon;
+        this.name = name;
+        this.obfuscatedType = obfuscatedType;
+        this.photos = photos;
+        this.placeId = placeId;
+        this.rating = rating;
+        this.reference = reference;
+        this.scope = scope;
+        this.types = types;
+        this.userRatingsTotal = userRatingsTotal;
+        this.vicinity = vicinity;
+        this.openingHours = openingHours;
+        this.docId = docId;
     }
 
     public String getBusinessStatus() {
@@ -176,14 +193,6 @@ public class NearbyPlaceModel implements Serializable {
 
     public void setVicinity(String vicinity) {
         this.vicinity = vicinity;
-    }
-
-    public boolean isSaved() {
-        return isSaved;
-    }
-
-    public void setSaved(boolean saved) {
-        isSaved = saved;
     }
 
     public NearbyPlaceOpeningHours getOpeningHours() {

@@ -191,9 +191,8 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
                             if (response.body().getNearbyPlaceModelList() != null &&
                                     response.body().getNearbyPlaceModelList().size() > 0) {
                                 nearbyPlaceModelList.clear();
-                                adapter.updateRestaurantList(nearbyPlaceModelList, currentLocation,
-                                        ListFragment.this);
-                                nearbyPlaceModelList.addAll(response.body().getNearbyPlaceModelList());
+                                adapter.updateRestaurantList(response.body().getNearbyPlaceModelList(),
+                                        currentLocation, ListFragment.this);
                                 adapter.notifyDataSetChanged();
                             } else {
                                 nearbyPlaceModelList.clear();
