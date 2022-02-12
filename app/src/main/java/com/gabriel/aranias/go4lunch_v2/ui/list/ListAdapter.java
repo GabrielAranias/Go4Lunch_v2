@@ -139,7 +139,7 @@ public class ListAdapter extends RecyclerView.Adapter<ListAdapter.ViewHolder> {
         private void getWorkmateNumber(NearbyPlaceModel restaurant) {
             final Integer[] workmateNumber = {0};
             userHelper.getUserCollection().get().addOnCompleteListener(task -> {
-                if (task.getResult() != null) {
+                if (task.isSuccessful()) {
                     for (DocumentSnapshot documentSnapshot : task.getResult()) {
                         String placeId = documentSnapshot.getString(Constants.LUNCH_SPOT_ID_FIELD);
                         if (placeId != null) {

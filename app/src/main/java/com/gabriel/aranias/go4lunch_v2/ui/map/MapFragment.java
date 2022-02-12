@@ -59,16 +59,19 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.chip.Chip;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -89,11 +92,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private LoadingDialog loadingDialog;
     private RetrofitApi retrofitApi;
     private List<NearbyPlaceModel> nearbyPlaceModelList;
-    private int radius = 5000;
+    private int radius = 1000;
     private CustomPlace selectedPlace;
     private final UserHelper userHelper = UserHelper.getInstance();
     private PlacesClient placesClient;
     private AutocompleteSessionToken token;
+    private Drawable background;
 
     public MapFragment() {
     }
@@ -321,23 +325,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // Count joining workmates in each place to set different marker colors
     private void countWorkmates(NearbyPlaceModel restaurant) {
         userHelper.getUserCollection().get().addOnCompleteListener(task -> {
-            if (task.getResult() != null) {
-                for (DocumentSnapshot doc : task.getResult()) {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    Log.d("TAG", doc.getId() + " => " + doc.getData());
                     String placeId = doc.getString(Constants.LUNCH_SPOT_ID_FIELD);
                     if (placeId != null) {
                         // Set marker color x add it to map
-                        Drawable background;
                         if (placeId.equals(restaurant.getPlaceId())) {
                             background = ContextCompat.getDrawable(
                                     requireContext(), R.drawable.marker_green);
+                            addMarker(restaurant, background);
                         } else {
                             background = ContextCompat.getDrawable(
                                     requireContext(), R.drawable.marker_red);
+                            addMarker(restaurant, background);
                         }
-                        addMarker(restaurant, background);
                     }
                 }
+            } else {
+                Log.d("TAG", "Error getting documents: ", task.getException());
             }
+
         });
     }
 
@@ -407,6 +415,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public boolean onQueryTextChange(String newText) {
                 if (currentLocation != null) {
+
                     // Create object from 2 points around user location (southwest x northeast)
                     RectangularBounds bounds = RectangularBounds.newInstance(
                             new LatLng(currentLocation.getLatitude() - 0.003,
@@ -419,25 +428,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             FindAutocompletePredictionsRequest.builder()
                                     .setLocationRestriction(bounds)
                                     .setTypeFilter(TypeFilter.ESTABLISHMENT)
-                                    .setQuery(newText)
                                     .setSessionToken(token)
+                                    .setQuery(newText)
                                     .build();
 
                     placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
                         for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
 
                             map.clear();
-                            for (NearbyPlaceModel place : nearbyPlaceModelList) {
-                                if (prediction.getPlaceId().equals(place.getPlaceId())) {
-                                    // Refresh map w/ predicted places
-                                    countWorkmates(place);
-                                    // Move camera to predicted place's position
-                                    CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-                                            new LatLng(place.getGeometry().getLocation().getLat(),
-                                                    place.getGeometry().getLocation().getLng()), 17);
-                                    map.animateCamera(cameraUpdate);
-                                }
-                            }
+                            // Refresh map w/ predicted places
+                            getPredictions(prediction);
+
                         }
                     }).addOnFailureListener((exception) -> {
                         if (exception instanceof ApiException) {
@@ -446,8 +447,62 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         }
                     });
                 }
-                return true;
+                return false;
             }
         });
+    }
+
+    private void getPredictions(AutocompletePrediction prediction) {
+        List<Place.Field> placeFields = Arrays.asList(
+                Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME, Place.Field.ADDRESS);
+        FetchPlaceRequest request = FetchPlaceRequest.newInstance(
+                prediction.getPlaceId(), placeFields);
+
+        placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
+            Place place = response.getPlace();
+            LatLng latLng = place.getLatLng();
+
+            if (latLng != null) {
+                checkIfPredictionIsLunchSpot(place);
+
+                // Move camera to predicted place's position
+                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
+                        new LatLng(latLng.latitude, latLng.longitude), 17);
+                map.animateCamera(cameraUpdate);
+            }
+        });
+    }
+
+    private void checkIfPredictionIsLunchSpot(Place place) {
+        userHelper.getUserCollection().get().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot doc : task.getResult()) {
+                    Log.d("TAG", doc.getId() + " => " + doc.getData());
+                    String placeId = doc.getString(Constants.LUNCH_SPOT_ID_FIELD);
+                    if (placeId != null) {
+                        // Set marker color x add it to map
+                        if (placeId.equals(place.getId())) {
+                            background = ContextCompat.getDrawable(
+                                    requireContext(), R.drawable.marker_green);
+                            addPredictionMarker(place, background);
+                        } else {
+                            background = ContextCompat.getDrawable(
+                                    requireContext(), R.drawable.marker_red);
+                            addPredictionMarker(place, background);
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    private void addPredictionMarker(Place place, Drawable background) {
+        MarkerOptions markerOptions = new MarkerOptions()
+                .position(new LatLng(Objects.requireNonNull(place.getLatLng()).latitude,
+                        place.getLatLng().longitude))
+                .title(place.getName())
+                .snippet(place.getAddress());
+        markerOptions.icon(getCustomIcon(background));
+        Objects.requireNonNull(map.addMarker(markerOptions)).setTag(place);
     }
 }

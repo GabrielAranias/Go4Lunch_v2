@@ -328,7 +328,7 @@ public class DetailActivity extends AppCompatActivity {
 
     private void deletePreviousLunchSpot(NearbyPlaceModel restaurant) {
         placeHelper.getPlaceCollection().get().addOnCompleteListener(task -> {
-            if (task.getResult() != null) {
+            if (task.isSuccessful()) {
                 for (DocumentSnapshot doc : task.getResult()) {
                     if (doc.exists() && doc.contains(Constants.USER_ID_FIELD)) {
                         String userId = doc.getString(Constants.USER_ID_FIELD);
@@ -376,7 +376,7 @@ public class DetailActivity extends AppCompatActivity {
             workmates.clear();
         }
         userHelper.getUserCollection().get().addOnCompleteListener(task -> {
-            if (task.getResult() != null) {
+            if (task.isSuccessful()) {
                 for (DocumentSnapshot documentSnapshot : task.getResult()) {
                     String placeId = documentSnapshot.getString(Constants.LUNCH_SPOT_ID_FIELD);
                     if (placeId != null) {

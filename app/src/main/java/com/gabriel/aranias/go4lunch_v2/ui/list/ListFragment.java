@@ -2,6 +2,8 @@ package com.gabriel.aranias.go4lunch_v2.ui.list;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.app.SearchManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Location;
@@ -9,12 +11,16 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
@@ -30,11 +36,20 @@ import com.gabriel.aranias.go4lunch_v2.ui.detail.DetailActivity;
 import com.gabriel.aranias.go4lunch_v2.utils.Constants;
 import com.gabriel.aranias.go4lunch_v2.utils.OnItemClickListener;
 import com.gabriel.aranias.go4lunch_v2.utils.PlaceUtils;
+import com.google.android.gms.common.api.ApiException;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.AutocompletePrediction;
+import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.model.TypeFilter;
+import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
+import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.chip.Chip;
 import com.google.gson.Gson;
 
@@ -55,8 +70,10 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
     private ListAdapter adapter;
     private RetrofitApi retrofitApi;
     private List<NearbyPlaceModel> nearbyPlaceModelList;
-    private int radius = 5000;
+    private int radius = 1000;
     private CustomPlace selectedPlace;
+    private PlacesClient placesClient;
+    private AutocompleteSessionToken token;
 
     public ListFragment() {
     }
@@ -64,6 +81,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
     }
 
     @Override
@@ -73,6 +91,10 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
 
         retrofitApi = RetrofitClient.getRetrofitApi();
         nearbyPlaceModelList = new ArrayList<>();
+
+        Places.initialize(requireContext(), Constants.API_KEY);
+        placesClient = Places.createClient(requireActivity());
+        token = AutocompleteSessionToken.newInstance();
 
         return binding.getRoot();
     }
@@ -190,12 +212,10 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
                         if (response.body() != null) {
                             if (response.body().getNearbyPlaceModelList() != null &&
                                     response.body().getNearbyPlaceModelList().size() > 0) {
-                                nearbyPlaceModelList.clear();
                                 adapter.updateRestaurantList(response.body().getNearbyPlaceModelList(),
                                         currentLocation, ListFragment.this);
                                 adapter.notifyDataSetChanged();
                             } else {
-                                nearbyPlaceModelList.clear();
                                 radius += 1000;
                                 getPlaces(placeName);
                             }
@@ -242,5 +262,108 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(@NonNull Menu menu, @NonNull MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+
+        inflater.inflate(R.menu.search, menu);
+        SearchManager searchManager = (SearchManager) requireActivity()
+                .getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView = (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(requireActivity().getComponentName()));
+        searchView.setBackground(ContextCompat.getDrawable(requireContext(), R.drawable.background_search));
+        searchView.setImeOptions(EditorInfo.IME_ACTION_DONE);
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                if (currentLocation != null) {
+
+                    // Create object from 2 points around user location (southwest x northeast)
+                    RectangularBounds bounds = RectangularBounds.newInstance(
+                            new LatLng(currentLocation.getLatitude() - 500,
+                                    currentLocation.getLongitude() - 500),
+                            new LatLng(currentLocation.getLatitude() + 500,
+                                    currentLocation.getLongitude() + 500));
+
+                    // Use builder to create FindAutocompletePredictionsRequest
+                    FindAutocompletePredictionsRequest request =
+                            FindAutocompletePredictionsRequest.builder()
+                                    .setLocationRestriction(bounds)
+                                    .setTypeFilter(TypeFilter.ESTABLISHMENT)
+                                    .setSessionToken(token)
+                                    .setQuery(newText)
+                                    .build();
+
+                    placesClient.findAutocompletePredictions(request).addOnSuccessListener((response) -> {
+                        for (AutocompletePrediction prediction : response.getAutocompletePredictions()) {
+
+                            // Refresh Recycler View w/ predicted restaurants
+                            getPredictions(prediction);
+
+                        }
+                    }).addOnFailureListener((exception) -> {
+                        if (exception instanceof ApiException) {
+                            ApiException apiException = (ApiException) exception;
+                            Log.e("TAG", apiException.getMessage());
+                        }
+                    });
+                }
+                return false;
+            }
+        });
+    }
+
+    private void getPredictions(AutocompletePrediction prediction) {
+        if ((ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) && currentLocation != null) {
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
+                    + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
+                    + "&radius=" + radius + "&type=restaurant" + "&key=" + Constants.API_KEY;
+
+            retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
+                @SuppressLint("NotifyDataSetChanged")
+                @Override
+                public void onResponse(@NonNull Call<NearbySearchResponse> call,
+                                       @NonNull Response<NearbySearchResponse> response) {
+                    Gson gson = new Gson();
+                    String res = gson.toJson(response.body());
+                    Log.d("TAG", "onResponse: " + res);
+                    if (response.errorBody() == null) {
+                        if (response.body() != null) {
+                            if (response.body().getNearbyPlaceModelList() != null &&
+                                    response.body().getNearbyPlaceModelList().size() > 0) {
+                                for (NearbyPlaceModel predictedPlace :
+                                        response.body().getNearbyPlaceModelList()) {
+                                    if (predictedPlace.getPlaceId().equals(prediction.getPlaceId())) {
+                                        nearbyPlaceModelList.clear();
+                                        nearbyPlaceModelList.add(predictedPlace);
+                                    }
+                                }
+                                adapter.updateRestaurantList(nearbyPlaceModelList, currentLocation,
+                                        ListFragment.this);
+                                adapter.notifyDataSetChanged();
+                            }
+                        }
+                    } else {
+                        Log.d("TAG", "onResponse: " + response.errorBody());
+                        Toast.makeText(requireContext(), "Error: " + response.errorBody(),
+                                Toast.LENGTH_SHORT).show();
+                    }
+                }
+
+                @Override
+                public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
+                    Log.d("TAG", "onFailure: " + t);
+                }
+            });
+        }
     }
 }
