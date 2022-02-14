@@ -28,6 +28,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentMapBinding;
 import com.gabriel.aranias.go4lunch_v2.model.CustomPlace;
@@ -59,10 +60,8 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.AutocompletePrediction;
 import com.google.android.libraries.places.api.model.AutocompleteSessionToken;
-import com.google.android.libraries.places.api.model.Place;
 import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.api.model.TypeFilter;
-import com.google.android.libraries.places.api.net.FetchPlaceRequest;
 import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest;
 import com.google.android.libraries.places.api.net.PlacesClient;
 import com.google.android.material.chip.Chip;
@@ -71,7 +70,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -118,7 +116,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         retrofitApi = RetrofitClient.getRetrofitApi();
         nearbyPlaceModelList = new ArrayList<>();
 
-        Places.initialize(requireContext(), Constants.API_KEY);
+        Places.initialize(requireContext(), BuildConfig.MAPS_API_KEY);
         placesClient = Places.createClient(requireActivity());
         token = AutocompleteSessionToken.newInstance();
 
@@ -279,7 +277,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             loadingDialog.startLoading();
             String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                     + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
-                    + "&radius=" + radius + "&type=" + placeName + "&key=" + Constants.API_KEY;
+                    + "&radius=" + radius + "&type=" + placeName + "&key=" + BuildConfig.MAPS_API_KEY;
 
             retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
                 @Override
@@ -293,14 +291,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             if (response.body().getNearbyPlaceModelList() != null &&
                                     response.body().getNearbyPlaceModelList().size() > 0) {
                                 map.clear();
-                                nearbyPlaceModelList.clear();
-                                nearbyPlaceModelList.addAll(response.body().getNearbyPlaceModelList());
                                 for (int i = 0; i < response.body().getNearbyPlaceModelList().size(); i++) {
                                     countWorkmates(response.body().getNearbyPlaceModelList().get(i));
                                 }
                             } else {
                                 map.clear();
-                                nearbyPlaceModelList.clear();
                                 radius += 1000;
                                 getPlaces(placeName);
                             }
@@ -345,7 +340,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             } else {
                 Log.d("TAG", "Error getting documents: ", task.getException());
             }
-
         });
     }
 
@@ -453,56 +447,57 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     }
 
     private void getPredictions(AutocompletePrediction prediction) {
-        List<Place.Field> placeFields = Arrays.asList(
-                Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME, Place.Field.ADDRESS);
-        FetchPlaceRequest request = FetchPlaceRequest.newInstance(
-                prediction.getPlaceId(), placeFields);
+        if ((ContextCompat.checkSelfPermission(requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED) && currentLocation != null) {
+            String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
+                    + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
+                    + "&radius=" + radius + "&type=restaurant" + "&key=" + BuildConfig.MAPS_API_KEY;
 
-        placesClient.fetchPlace(request).addOnSuccessListener((response) -> {
-            Place place = response.getPlace();
-            LatLng latLng = place.getLatLng();
-
-            if (latLng != null) {
-                checkIfPredictionIsLunchSpot(place);
-
-                // Move camera to predicted place's position
-                CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(
-                        new LatLng(latLng.latitude, latLng.longitude), 17);
-                map.animateCamera(cameraUpdate);
-            }
-        });
-    }
-
-    private void checkIfPredictionIsLunchSpot(Place place) {
-        userHelper.getUserCollection().get().addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot doc : task.getResult()) {
-                    Log.d("TAG", doc.getId() + " => " + doc.getData());
-                    String placeId = doc.getString(Constants.LUNCH_SPOT_ID_FIELD);
-                    if (placeId != null) {
-                        // Set marker color x add it to map
-                        if (placeId.equals(place.getId())) {
-                            background = ContextCompat.getDrawable(
-                                    requireContext(), R.drawable.marker_green);
-                            addPredictionMarker(place, background);
-                        } else {
-                            background = ContextCompat.getDrawable(
-                                    requireContext(), R.drawable.marker_red);
-                            addPredictionMarker(place, background);
+            retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
+                @Override
+                public void onResponse(@NonNull Call<NearbySearchResponse> call,
+                                       @NonNull Response<NearbySearchResponse> response) {
+                    Gson gson = new Gson();
+                    String res = gson.toJson(response.body());
+                    Log.d("TAG", "onResponse: " + res);
+                    if (response.errorBody() == null) {
+                        if (response.body() != null) {
+                            if (response.body().getNearbyPlaceModelList() != null &&
+                                    response.body().getNearbyPlaceModelList().size() > 0) {
+                                for (NearbyPlaceModel predictedPlace :
+                                        response.body().getNearbyPlaceModelList()) {
+                                    if (predictedPlace.getPlaceId().equals(prediction.getPlaceId())) {
+                                        nearbyPlaceModelList.clear();
+                                        nearbyPlaceModelList.add(predictedPlace);
+                                        for (int i = 0; i < nearbyPlaceModelList.size(); i++) {
+                                            countWorkmates(nearbyPlaceModelList.get(i));
+                                            // Move camera to predicted place's location
+                                            moveCameraToPrediction(predictedPlace);
+                                        }
+                                    }
+                                }
+                            }
                         }
+                    } else {
+                        Log.d("TAG", "onResponse: " + response.errorBody());
+                        Toast.makeText(requireContext(), "Error: " + response.errorBody(),
+                                Toast.LENGTH_SHORT).show();
                     }
                 }
-            }
-        });
+
+                @Override
+                public void onFailure(@NonNull Call<NearbySearchResponse> call, @NonNull Throwable t) {
+                    Log.d("TAG", "onFailure: " + t);
+                    loadingDialog.stopLoading();
+                }
+            });
+        }
     }
 
-    private void addPredictionMarker(Place place, Drawable background) {
-        MarkerOptions markerOptions = new MarkerOptions()
-                .position(new LatLng(Objects.requireNonNull(place.getLatLng()).latitude,
-                        place.getLatLng().longitude))
-                .title(place.getName())
-                .snippet(place.getAddress());
-        markerOptions.icon(getCustomIcon(background));
-        Objects.requireNonNull(map.addMarker(markerOptions)).setTag(place);
+    private void moveCameraToPrediction(NearbyPlaceModel predictedPlace) {
+        CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(new LatLng(
+                predictedPlace.getGeometry().getLocation().getLat(),
+                predictedPlace.getGeometry().getLocation().getLng()), 17);
+        map.animateCamera(cameraUpdate);
     }
 }

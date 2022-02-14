@@ -11,6 +11,7 @@ import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.ContextCompat;
 
+import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.ActivityDetailBinding;
 import com.gabriel.aranias.go4lunch_v2.model.User;
@@ -52,7 +53,7 @@ public class DetailActivity extends AppCompatActivity {
         binding = ActivityDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        Places.initialize(getApplicationContext(), Constants.API_KEY);
+        Places.initialize(getApplicationContext(), BuildConfig.MAPS_API_KEY);
         placesClient = Places.createClient(this);
 
         prefs = getSharedPreferences(Constants.SHARED_PREFERENCES, MODE_PRIVATE);

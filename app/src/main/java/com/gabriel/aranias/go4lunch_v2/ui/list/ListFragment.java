@@ -25,6 +25,7 @@ import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 
+import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.gabriel.aranias.go4lunch_v2.R;
 import com.gabriel.aranias.go4lunch_v2.databinding.FragmentListBinding;
 import com.gabriel.aranias.go4lunch_v2.model.CustomPlace;
@@ -92,7 +93,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
         retrofitApi = RetrofitClient.getRetrofitApi();
         nearbyPlaceModelList = new ArrayList<>();
 
-        Places.initialize(requireContext(), Constants.API_KEY);
+        Places.initialize(requireContext(), BuildConfig.MAPS_API_KEY);
         placesClient = Places.createClient(requireActivity());
         token = AutocompleteSessionToken.newInstance();
 
@@ -198,7 +199,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
                 == PackageManager.PERMISSION_GRANTED) && currentLocation != null) {
             String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                     + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
-                    + "&radius=" + radius + "&type=" + placeName + "&key=" + Constants.API_KEY;
+                    + "&radius=" + radius + "&type=" + placeName + "&key=" + BuildConfig.MAPS_API_KEY;
 
             retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
                 @SuppressLint("NotifyDataSetChanged")
@@ -326,7 +327,7 @@ public class ListFragment extends Fragment implements OnItemClickListener<Nearby
                 == PackageManager.PERMISSION_GRANTED) && currentLocation != null) {
             String url = "https://maps.googleapis.com/maps/api/place/nearbysearch/json?location="
                     + currentLocation.getLatitude() + "," + currentLocation.getLongitude()
-                    + "&radius=" + radius + "&type=restaurant" + "&key=" + Constants.API_KEY;
+                    + "&radius=" + radius + "&type=restaurant" + "&key=" + BuildConfig.MAPS_API_KEY;
 
             retrofitApi.getNearbyPlaces(url).enqueue(new Callback<NearbySearchResponse>() {
                 @SuppressLint("NotifyDataSetChanged")

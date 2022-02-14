@@ -1,6 +1,6 @@
 package com.gabriel.aranias.go4lunch_v2.model.nearby;
 
-import com.gabriel.aranias.go4lunch_v2.utils.Constants;
+import com.gabriel.aranias.go4lunch_v2.BuildConfig;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -59,7 +59,7 @@ public class NearbyPlacePhoto implements Serializable {
 
     public String getPhotoUrl() {
         String url = "https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&photoreference=";
-        String key = "&key=" + Constants.API_KEY;
+        String key = "&key=" + BuildConfig.MAPS_API_KEY;
         return url + getPhotoReference() + key;
     }
 }

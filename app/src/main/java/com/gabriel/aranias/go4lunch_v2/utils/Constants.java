@@ -1,10 +1,6 @@
 package com.gabriel.aranias.go4lunch_v2.utils;
 
-import com.gabriel.aranias.go4lunch_v2.BuildConfig;
-
 public class Constants {
-
-    public static final String API_KEY = BuildConfig.MAPS_API_KEY;
 
     public static final String EXTRA_RESTAURANT = "restaurant";
     public final static String EXTRA_WORKMATE = "workmate";
