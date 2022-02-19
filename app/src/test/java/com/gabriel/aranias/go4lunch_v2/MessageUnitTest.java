@@ -16,8 +16,6 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.util.Date;
-
 public class MessageUnitTest {
 
     private static final String colId = "colId";
