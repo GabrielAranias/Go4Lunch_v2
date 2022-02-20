@@ -8,6 +8,8 @@ import static androidx.test.espresso.matcher.ViewMatchers.hasDescendant;
 import static androidx.test.espresso.matcher.ViewMatchers.isDisplayed;
 import static androidx.test.espresso.matcher.ViewMatchers.withId;
 import static androidx.test.espresso.matcher.ViewMatchers.withText;
+import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
+import static org.hamcrest.Matchers.allOf;
 import static org.junit.Assert.assertEquals;
 
 import android.content.Context;
@@ -16,7 +18,7 @@ import android.view.Gravity;
 import androidx.test.espresso.contrib.DrawerActions;
 import androidx.test.ext.junit.rules.ActivityScenarioRule;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
-import androidx.test.platform.app.InstrumentationRegistry;
+import androidx.test.filters.LargeTest;
 
 import com.gabriel.aranias.go4lunch_v2.ui.MainActivity;
 
@@ -26,6 +28,7 @@ import org.junit.runner.RunWith;
 
 
 @RunWith(AndroidJUnit4.class)
+@LargeTest
 public class Go4LunchInstrumentedTest {
 
     @Rule
@@ -34,55 +37,45 @@ public class Go4LunchInstrumentedTest {
     @Test
     public void useAppContext() {
         // App context under test
-        Context appContext = InstrumentationRegistry.getInstrumentation().getTargetContext();
+        Context appContext = getInstrumentation().getTargetContext();
         assertEquals("com.gabriel.aranias.go4lunch_v2", appContext.getPackageName());
     }
 
     @Test
-    public void checkThatMapFragmentIsDisplayed() {
-        onView(withId(R.id.nav_map)).perform(click());
-        onView(withId(R.id.map)).check(matches(isDisplayed()));
+    public void checkThatMapFragmentIsInitiallyDisplayed() {
+        onView(withId(R.id.nav_map)).check(matches(isDisplayed()));
         onView(withId(R.id.main_toolbar)).check(matches(hasDescendant(withText(R.string.nav_hungry))));
     }
 
     @Test
-    public void checkThatListFragmentIsDisplayed() {
+    public void checkThatFragmentIsDisplayedOnClick() {
         onView(withId(R.id.nav_list)).perform(click());
+        onView(withId(R.id.nav_list)).check(matches(isDisplayed()));
+    }
+
+    @Test
+    public void checkThatListIsDisplayedOnChipClick() {
+        onView(withId(R.id.nav_list)).perform(click());
+        onView(allOf(withId(R.id.list_place_group), isDisplayed())).perform(click());
         onView(withId(R.id.list_rv)).check(matches(isDisplayed()));
-        onView(withId(R.id.main_toolbar)).check(matches(hasDescendant(withText(R.string.nav_hungry))));
     }
 
     @Test
-    public void checkThatWorkmateFragmentIsDisplayed() {
-        onView(withId(R.id.nav_workmates)).perform(click());
-        onView(withId(R.id.workmate_rv)).check(matches(isDisplayed()));
-        onView(withId(R.id.main_toolbar)).check(matches(hasDescendant(withText(R.string.nav_workmates))));
+    public void checkThatSearchOptionIsFunctional() {
+        onView(withId(R.id.action_search)).perform(click());
     }
 
     @Test
-    public void checkThatChatFragmentIsDisplayed() {
-        onView(withId(R.id.nav_chat)).perform(click());
-        onView(withId(R.id.chat_list_rv)).check(matches(isDisplayed()));
-        onView(withId(R.id.main_toolbar)).check(matches(hasDescendant(withText(R.string.nav_chat))));
+    public void checkThatNavigationDrawerIsDisplayedOnClick() {
+        onView(withId(R.id.drawer_layout)).
+                check(matches(isClosed(Gravity.START))).perform(DrawerActions.open());
     }
 
+    // @Ignore if tests are run together due to logout
     @Test
-    public void checkThatSettingActivityIsDisplayed() {
-        onView(withId(R.id.drawer_layout))
-                .check(matches(isClosed(Gravity.START))).perform(DrawerActions.open());
-        onView(withId(R.id.nd_settings)).perform(click());
-        onView(withId(R.id.setting_update_btn)).check(matches(isDisplayed()));
-        onView(withId(R.id.setting_switch_layout)).check(matches(isDisplayed()));
-        onView(withId(R.id.setting_delete_btn)).check(matches(isDisplayed()));
-    }
-
-    @Test
-    public void checkThatDetailActivityIsDisplayed() {
-        onView(withId(R.id.drawer_layout))
-                .check(matches(isClosed(Gravity.START))).perform(DrawerActions.open());
-        onView(withId(R.id.nd_your_lunch)).perform(click());
-        onView(withId(R.id.detail_appbar_layout)).check(matches(isDisplayed()));
-        onView(withId(R.id.detail_lunch_spot_fab)).check(matches(isDisplayed()));
-        onView(withId(R.id.detail_content)).check(matches(isDisplayed()));
+    public void checkThatLogOutIsFunctional() {
+        checkThatMapFragmentIsInitiallyDisplayed();
+        checkThatNavigationDrawerIsDisplayedOnClick();
+        onView(withId(R.id.nd_logout)).perform(click());
     }
 }
